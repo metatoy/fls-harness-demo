@@ -1,0 +1,4 @@
+{
+  "_comment": "Feature flags. Every new surface ships behind one, off in prod until a human signs off.",
+  "share-result": { "stage": false, "prod": false }
+}

@@ -1,0 +1,64 @@
+/* FLS · Design System A — "Resolution" (FLS-DS-A-1.0)
+   Extracted 2026-09-10 from Claude Design project "FLS Design System A — Resolution"
+   (e0b07628-0962-4c18-afc6-00bd31f4704e), files tokens.css + design_handoff_admin_workbench/README.md.
+   Canonical source of truth is that project; regenerate with design-system/REGENERATE.md.
+   Rail and surface tokens below the first block come from the handoff README's token summary. */
+:root {
+  /* grounds — never pure black or white; warm near-neutrals, picked not defaulted */
+  --a-paper:      #f5f3ee;   /* primary page ground */
+  --a-paper-2:    #edeae1;   /* card / recessed section ground */
+  --a-card:       #f8f5ec;   /* decision-card ground (sits above paper) */
+  --a-page:       #e4ddcd;   /* the ground the app shell sits on */
+  --a-ink:        #16130f;   /* text — reserved for TYPE, not fills */
+  --a-muted:      #6c6659;   /* annotations, rung numbers, meta */
+  --a-line:       #d7d2c6;   /* hairlines, borders */
+
+  /* the gate ground: a dark WARM GREY, never black */
+  --a-gate:       #2b2823;
+  --a-gate-text:  #f5f3ee;
+
+  /* the primaries — rung stops. one dominant per surface, never all three shouting */
+  --a-blue:       #005eb8;   /* rung 1 · SPEC */
+  --a-blue-2:     #3f83c4;   /* rung 2 step fill */
+  --a-yellow:     #fdb913;   /* rung 2/3 · ink type rides on yellow */
+  --a-red:        #e63329;   /* the flag · the ONE state/error accent */
+
+  /* graph-paper grid accent */
+  --a-grid:       #dfe7ee;
+  --a-grid-bold:  #cdd8e2;
+
+  /* dark rail */
+  --a-rail-bg:      #16130f;
+  --a-rail-text:    #cfc7b6;
+  --a-rail-muted:   #8f8676;
+  --a-rail-active:  #4d97e0;
+  --a-rail-count:   #7fb2e8;
+
+  /* type roles */
+  --a-bitmap:  'Silkscreen', 'Courier New', monospace;            /* mark only — never running text */
+  --a-hand:    'Caveat', cursive;                                 /* mark only — never running text */
+  --a-display: 'Archivo', 'Arial Narrow', system-ui, sans-serif;  /* headings, wordmark, body display */
+  --a-mono:    'IBM Plex Mono', ui-monospace, monospace;          /* annotations, counts, labels */
+
+  /* radius scale */
+  --a-r-shell:  6px;
+  --a-r-nav:    7px;
+  --a-r-card:   5px;
+  --a-r-btn:    4px;
+  --a-r-chip:   3px;
+  --a-r-pill:   9px;
+  --a-r-tick:   1px;
+
+  /* spacing scale (derived from the handoff's measured paddings; 2px base) */
+  --a-s-1:  4px;
+  --a-s-2:  8px;
+  --a-s-3:  12px;
+  --a-s-4:  16px;
+  --a-s-5:  20px;
+  --a-s-6:  22px;
+  --a-s-7:  26px;
+  --a-s-8:  30px;
+
+  /* the ratchet: five hard steps, discrete + one-way (not a gradient) */
+  --a-rungs: 5;
+}

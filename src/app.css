@@ -1,0 +1,36 @@
+/* App shell. Tokens only — see design-system/tokens.css. */
+body {
+  margin: 0;
+  background: var(--a-page);
+  color: var(--a-ink);
+  font-family: var(--a-mono);
+}
+
+.screen {
+  max-width: 520px;
+  margin: 40px auto;
+  padding: var(--a-s-8) var(--a-s-7);
+  background: var(--a-paper);
+  border: 1px solid var(--a-line);
+  border-radius: var(--a-r-shell);
+  display: flex;
+  flex-direction: column;
+  gap: var(--a-s-4);
+}
+
+.screen__title {
+  font: 900 30px var(--a-display);
+  letter-spacing: -.015em;
+  line-height: 1;
+  margin: 0;
+  text-wrap: balance;
+}
+.screen__lede { font: 400 14px/1.6 var(--a-mono); color: var(--a-muted); margin: 0; }
+.screen__actions { display: flex; gap: var(--a-s-3); flex-wrap: wrap; }
+
+.board { display: flex; flex-direction: column; gap: 6px; }
+.board__row { height: 34px; border-radius: 3px; background: var(--a-paper-2); border: 1px solid var(--a-line); }
+.board__row--used { background: #dcd6c8; }
+
+.results__grid { display: flex; flex-direction: column; gap: 2px; font-size: 18px; line-height: 1.2; }
+.results__stats { display: flex; justify-content: space-between; gap: var(--a-s-4); }

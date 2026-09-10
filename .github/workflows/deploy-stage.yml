@@ -1,0 +1,29 @@
+# Stage deploy. Triggered by a GitHub deployment for the `stage` environment, which is what the
+# ladder's rung 5 creates after a flagged PR passes its smoke check. Never runs on a plain push.
+name: deploy-stage
+on:
+  deployment:
+
+jobs:
+  deploy:
+    if: github.event.deployment.environment == 'stage'
+    runs-on: ubuntu-latest
+    environment: stage
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: '${{ github.event.deployment.ref }}' }
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test
+      - run: VITE_ENV=stage pnpm run build
+      - name: Publish to the stage host
+        env:
+          DEPLOY_KEY: ${{ secrets.STAGE_DEPLOY_KEY }}
+          DEPLOY_HOST: ${{ secrets.STAGE_HOST }}
+        run: |
+          install -m 600 /dev/stdin ~/deploy_key <<< "$DEPLOY_KEY"
+          rsync -az --delete -e "ssh -i ~/deploy_key -o StrictHostKeyChecking=accept-new" \
+            dist/ "fls@${DEPLOY_HOST}:/srv/stage/demo-app/"

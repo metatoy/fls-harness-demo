@@ -1,0 +1,510 @@
+{
+  "v": 1,
+  "name": "FLS Design System A \u2014 Resolution",
+  "id": "FLS-DS-A-1.0",
+  "source": {
+    "kind": "claude-design",
+    "project_id": "e0b07628-0962-4c18-afc6-00bd31f4704e",
+    "project_name": "FLS Design System A \u2014 Resolution",
+    "files": [
+      "tokens.css",
+      "FLS Design System A.dc.html",
+      "design_handoff_admin_workbench/README.md"
+    ],
+    "extracted": "2026-09-10",
+    "note": "Generated once from the Claude Design project and committed here. The prototype and build rungs read this file; they do not need a live design connection. Regenerate per REGENERATE.md when the source project changes."
+  },
+  "premise": "Fidelity made visible: coarse resolves into crisp. The ladder is a ratchet of five hard, one-way steps, not a gradient. Primaries are the palette because primaries are the primitives of color, the way a spec is the primitive of software.",
+  "tokens": {
+    "color": {
+      "paper": {
+        "value": "#f5f3ee",
+        "var": "--a-paper",
+        "role": "primary page ground"
+      },
+      "paper2": {
+        "value": "#edeae1",
+        "var": "--a-paper-2",
+        "role": "card / recessed section ground"
+      },
+      "card": {
+        "value": "#f8f5ec",
+        "var": "--a-card",
+        "role": "decision-card ground"
+      },
+      "page": {
+        "value": "#e4ddcd",
+        "var": "--a-page",
+        "role": "ground behind the app shell"
+      },
+      "ink": {
+        "value": "#16130f",
+        "var": "--a-ink",
+        "role": "type only, never a fill"
+      },
+      "muted": {
+        "value": "#6c6659",
+        "var": "--a-muted",
+        "role": "annotations, meta, rung numbers"
+      },
+      "line": {
+        "value": "#d7d2c6",
+        "var": "--a-line",
+        "role": "hairlines and borders"
+      },
+      "gate": {
+        "value": "#2b2823",
+        "var": "--a-gate",
+        "role": "the gate ground; warm dark grey, never black"
+      },
+      "gateText": {
+        "value": "#f5f3ee",
+        "var": "--a-gate-text",
+        "role": "type on the gate"
+      },
+      "blue": {
+        "value": "#005eb8",
+        "var": "--a-blue",
+        "role": "primary action, rung 1 spec, active nav"
+      },
+      "blue2": {
+        "value": "#3f83c4",
+        "var": "--a-blue-2",
+        "role": "rung 2 step fill"
+      },
+      "yellow": {
+        "value": "#fdb913",
+        "var": "--a-yellow",
+        "role": "awaiting state; ink type rides on it"
+      },
+      "red": {
+        "value": "#e63329",
+        "var": "--a-red",
+        "role": "THE flag; the only state/error accent"
+      },
+      "grid": {
+        "value": "#dfe7ee",
+        "var": "--a-grid",
+        "role": "graph-paper ruling"
+      },
+      "gridBold": {
+        "value": "#cdd8e2",
+        "var": "--a-grid-bold",
+        "role": "every fifth ruling"
+      },
+      "railBg": {
+        "value": "#16130f",
+        "var": "--a-rail-bg",
+        "role": "dark rail ground"
+      },
+      "railText": {
+        "value": "#cfc7b6",
+        "var": "--a-rail-text",
+        "role": "rail item text"
+      },
+      "railMuted": {
+        "value": "#8f8676",
+        "var": "--a-rail-muted",
+        "role": "rail section headers, counts"
+      },
+      "railActive": {
+        "value": "#4d97e0",
+        "var": "--a-rail-active",
+        "role": "active nav inset bar"
+      },
+      "railCount": {
+        "value": "#7fb2e8",
+        "var": "--a-rail-count",
+        "role": "active count numeral"
+      }
+    },
+    "type": {
+      "families": {
+        "display": {
+          "stack": "'Archivo', 'Arial Narrow', system-ui, sans-serif",
+          "var": "--a-display",
+          "weights": [
+            500,
+            700,
+            800,
+            900
+          ],
+          "use": "headings, wordmark, card titles"
+        },
+        "mono": {
+          "stack": "'IBM Plex Mono', ui-monospace, monospace",
+          "var": "--a-mono",
+          "weights": [
+            400,
+            500,
+            600
+          ],
+          "use": "labels, counts, chips, buttons, annotations, body copy in dense UI"
+        },
+        "hand": {
+          "stack": "'Caveat', cursive",
+          "var": "--a-hand",
+          "weights": [
+            700
+          ],
+          "use": "INSIDE THE MARK ONLY \u2014 never running text"
+        },
+        "bitmap": {
+          "stack": "'Silkscreen', 'Courier New', monospace",
+          "var": "--a-bitmap",
+          "weights": [
+            400,
+            700
+          ],
+          "use": "INSIDE THE MARK ONLY \u2014 never running text"
+        }
+      },
+      "webfont_href": "https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap",
+      "roles": {
+        "pageTitle": {
+          "font": "display",
+          "weight": 900,
+          "size": "27px",
+          "letterSpacing": "-.015em",
+          "lineHeight": 1
+        },
+        "cardTitle": {
+          "font": "display",
+          "weight": 600,
+          "size": "17px"
+        },
+        "sectionLabel": {
+          "font": "mono",
+          "weight": 600,
+          "size": "10px",
+          "letterSpacing": ".22em",
+          "transform": "uppercase",
+          "color": "muted"
+        },
+        "label": {
+          "font": "mono",
+          "weight": 600,
+          "size": "11px",
+          "letterSpacing": ".2em",
+          "transform": "uppercase",
+          "color": "muted"
+        },
+        "body": {
+          "font": "mono",
+          "weight": 400,
+          "size": "14px",
+          "lineHeight": 1.65
+        },
+        "meta": {
+          "font": "mono",
+          "weight": 500,
+          "size": "11px",
+          "letterSpacing": ".14em",
+          "color": "muted"
+        },
+        "navItem": {
+          "font": "mono",
+          "weight": 500,
+          "size": "13px"
+        },
+        "count": {
+          "font": "mono",
+          "weight": 600,
+          "size": "11px"
+        }
+      }
+    },
+    "radius": {
+      "shell": "6px",
+      "nav": "7px",
+      "card": "5px",
+      "button": "4px",
+      "chip": "3px",
+      "pill": "9px",
+      "tick": "1px",
+      "avatar": "50%"
+    },
+    "spacing": {
+      "scale": [
+        "4px",
+        "8px",
+        "12px",
+        "16px",
+        "20px",
+        "22px",
+        "26px",
+        "30px"
+      ],
+      "note": "derived from the handoff's measured paddings; the source declares no numeric scale"
+    },
+    "border": {
+      "hairline": "1px solid #d7d2c6",
+      "railDivider": "1px solid rgba(245,243,238,.05)",
+      "railCard": "1px solid rgba(245,243,238,.09)",
+      "selected": "2px solid #005eb8",
+      "activeNav": "inset 3px 0 0 #4d97e0"
+    },
+    "texture": {
+      "mainDots": "radial-gradient(#e5decb 1px, transparent 1.1px) 9px -1px / 19px 19px",
+      "headerDots": "radial-gradient(#d8cfb6 1.3px, transparent 1.4px) / 19px 19px",
+      "graphGrid": "linear-gradient(#dfe7ee 1px, transparent 1px), linear-gradient(90deg,#dfe7ee 1px, transparent 1px), linear-gradient(#cdd8e2 1.4px, transparent 1.4px), linear-gradient(90deg,#cdd8e2 1.4px, transparent 1.4px) / 16px 16px, 16px 16px, 80px 80px, 80px 80px"
+    },
+    "motion": {
+      "duration": "150-200ms",
+      "press": "accent flash + slight shrink",
+      "reducedMotion": "static re-set, no glow bloom",
+      "note": "quick and tactile; never decorative"
+    },
+    "shadow": {
+      "shell": "0 8px 40px rgba(0,0,0,.16)",
+      "card": "0 1px 0 rgba(0,0,0,.03)"
+    }
+  },
+  "components": [
+    {
+      "name": "Button",
+      "element": "button",
+      "role": "the action in a row",
+      "base": {
+        "font": "mono 600 12.5px",
+        "padding": "8px 15px",
+        "radius": "4px",
+        "border": "1px solid #c9c0ac",
+        "background": "#f5f3ee",
+        "color": "#2b2823"
+      },
+      "variants": {
+        "primary": {
+          "background": "#005eb8",
+          "border": "1px solid #005eb8",
+          "color": "#f5f3ee"
+        },
+        "danger": {
+          "background": "#fbeeed",
+          "border": "1px solid #e6a49f",
+          "color": "#e63329"
+        }
+      },
+      "a11y": {
+        "minTarget": "44px effective",
+        "focus": "visible ring required"
+      },
+      "usage": "One primary per card. Danger is reserved for kill or delete, never for a normal action."
+    },
+    {
+      "name": "Chip",
+      "element": "span",
+      "role": "one piece of inline evidence",
+      "base": {
+        "font": "mono 500 11px",
+        "padding": "3px 9px",
+        "radius": "3px",
+        "border": "1px solid #d7d2c6",
+        "background": "#f5f3ee",
+        "color": "#4a4438"
+      },
+      "variants": {
+        "ok": {
+          "color": "#005eb8",
+          "background": "#eef4fa",
+          "border": "1px solid #b9d0e8"
+        },
+        "route": {
+          "color": "#005eb8",
+          "background": "#e2ebf4"
+        },
+        "await": {
+          "color": "#7a5c07",
+          "background": "#fdf0cf",
+          "border": "1px solid #f0d488"
+        },
+        "flag": {
+          "color": "#ffffff",
+          "background": "#e63329",
+          "border": "1px solid #e63329"
+        }
+      },
+      "usage": "Chips wrap in a row under the title. A trailing chip may be pushed right with margin-left:auto."
+    },
+    {
+      "name": "Card",
+      "element": "article",
+      "role": "one decision, with its evidence and its action",
+      "base": {
+        "background": "#f8f5ec",
+        "border": "1px solid #d7d2c6",
+        "radius": "5px",
+        "padding": "20px 22px",
+        "shadow": "0 1px 0 rgba(0,0,0,.03)"
+      },
+      "variants": {
+        "flagged": {
+          "background": "#fcf1f0",
+          "border": "1px solid #e6a49f"
+        }
+      },
+      "anatomy": [
+        "row 1: id, title, tick-rule or status chip, rung label",
+        "row 2: evidence chips",
+        "row 3: actions, margin-top 16px"
+      ],
+      "usage": "Everything needed to act lives in the card. The operator never leaves the row."
+    },
+    {
+      "name": "TickRule",
+      "element": "div",
+      "role": "the five-rung ratchet, discrete and one-way",
+      "base": {
+        "display": "flex",
+        "alignItems": "flex-end",
+        "gap": "5px"
+      },
+      "tick": {
+        "size": "3px x 12px",
+        "background": "#cfc7b4",
+        "radius": "1px"
+      },
+      "states": {
+        "done": {
+          "background": "#16130f"
+        },
+        "current": {
+          "background": "#005eb8",
+          "height": "16px"
+        },
+        "gate": {
+          "background": "#e63329",
+          "height": "16px"
+        }
+      },
+      "usage": "Never render as a continuous progress bar. Five discrete ticks; the last is the gate."
+    },
+    {
+      "name": "CountPill",
+      "element": "span",
+      "role": "how many items need attention",
+      "base": {
+        "font": "mono 600 11px",
+        "color": "#8f8676"
+      },
+      "variants": {
+        "active": {
+          "color": "#7fb2e8"
+        },
+        "flag": {
+          "color": "#ffffff",
+          "background": "#e63329",
+          "radius": "9px",
+          "padding": "1px 7px"
+        },
+        "await": {
+          "color": "#16130f",
+          "background": "#fdb913",
+          "radius": "9px",
+          "padding": "1px 7px"
+        }
+      }
+    },
+    {
+      "name": "NavItem",
+      "element": "a",
+      "role": "one destination in the dark rail",
+      "base": {
+        "display": "flex",
+        "justifyContent": "space-between",
+        "padding": "8px 14px",
+        "font": "mono 500 13px",
+        "color": "#cfc7b6",
+        "borderTop": "1px solid rgba(245,243,238,.05)"
+      },
+      "states": {
+        "active": {
+          "background": "rgba(0,94,184,.26)",
+          "boxShadow": "inset 3px 0 0 #4d97e0",
+          "color": "#f5f3ee",
+          "fontWeight": 600
+        }
+      },
+      "usage": "Exactly one active item. The inset bar is what marks it, not color alone."
+    },
+    {
+      "name": "NavSection",
+      "element": "nav",
+      "role": "a group of rail destinations",
+      "base": {
+        "margin": "0 14px 12px",
+        "border": "1px solid rgba(245,243,238,.09)",
+        "background": "rgba(245,243,238,.028)",
+        "radius": "7px",
+        "overflow": "hidden"
+      },
+      "header": {
+        "padding": "11px 14px 9px",
+        "font": "mono 600 10px",
+        "letterSpacing": ".22em",
+        "color": "#8f8676",
+        "layout": "flex space-between with optional count"
+      }
+    },
+    {
+      "name": "AppShell",
+      "element": "div",
+      "role": "the whole console",
+      "base": {
+        "width": "1240px",
+        "margin": "26px auto",
+        "background": "#e4ddcd",
+        "border": "1px solid #cfc7b4",
+        "radius": "6px",
+        "overflow": "hidden",
+        "shadow": "0 8px 40px rgba(0,0,0,.16)"
+      },
+      "columns": {
+        "rail": {
+          "width": "240px",
+          "flexShrink": 0,
+          "background": "#16130f",
+          "padding": "20px 0 14px"
+        },
+        "main": {
+          "flex": 1,
+          "minWidth": 0,
+          "background": "#f5f3ee",
+          "texture": "mainDots"
+        }
+      },
+      "usage": "Two columns via flex. The rail is fixed; only main scrolls."
+    },
+    {
+      "name": "PageHeader",
+      "element": "header",
+      "role": "what this screen is, and what it costs",
+      "base": {
+        "padding": "26px 30px 22px",
+        "borderBottom": "1px solid #d7d2c6",
+        "texture": "headerDots",
+        "layout": "flex, items flex-end"
+      },
+      "anatomy": [
+        "left: title (pageTitle) + meta sub-line",
+        "right: a spend meter \u2014 label, value, cap"
+      ]
+    }
+  ],
+  "rules": [
+    "One primary dominates a surface. Never let blue, yellow and red shout at once.",
+    "Red only ever flags. It is not a decorative accent and never a normal action color.",
+    "Grounds stay warm neutral. Never #000 or #fff; the gate is charcoal, not black.",
+    "Ink is for type. Do not use it as a fill.",
+    "Fidelity is stepped, not smooth. No gradients as structure.",
+    "The hand and bitmap faces live only inside the mark. They never set running text.",
+    "Every actionable control has a 44px effective hit target and a visible focus state.",
+    "Honor prefers-reduced-motion: re-set statically, no bloom.",
+    "Anything conveyed by color also carries a text label."
+  ],
+  "voice": {
+    "tone": "Instrument, not marketing. Plain, exact, a little schoolroom.",
+    "labels": "Uppercase mono for labels and counts; sentence case for titles and body.",
+    "numbers": "Monospace with tabular alignment wherever digits line up."
+  }
+}

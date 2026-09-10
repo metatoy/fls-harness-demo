@@ -1,0 +1,31 @@
+{
+  "name": "fls-harness-demo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "The stub app the fidelity ladder builds in. Small on purpose: two screens, a design system read from design-system/pack.json, feature flags, unit tests and an e2e pass.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 8794 --host 127.0.0.1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "playwright test",
+    "e2e:install": "playwright install --with-deps chromium",
+    "check": "pnpm run test && pnpm run build"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@vitejs/plugin-react": "^6.0.5",
+    "jsdom": "^25.0.1",
+    "vite": "^8.2.1",
+    "vitest": "^2.1.8"
+  }
+}
