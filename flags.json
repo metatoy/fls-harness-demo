@@ -1,3 +1,4 @@
 {
-  "_comment": "Feature flags, one entry per surface: {\"flag-name\": {\"stage\": bool, \"prod\": bool}}. Every new surface ships behind one, off in BOTH environments, until a human turns it on. The ladder's rung 5 writes this file when a change is signed off, so the shape is a contract, not a preference — see src/lib/flags.ts and tests/flags.test.ts. Keys starting with an underscore are notes, not flags."
+  "_comment": "Feature flags, one entry per surface: {\"flag-name\": {\"stage\": bool, \"prod\": bool}}. Every new surface ships behind one, off in BOTH environments, until a human turns it on. The ladder's rung 5 writes this file when a change is signed off, so the shape is a contract, not a preference — see src/lib/flags.ts and tests/flags.test.ts. Keys starting with an underscore are notes, not flags.",
+  "share-result": { "stage": false, "prod": false }
 }

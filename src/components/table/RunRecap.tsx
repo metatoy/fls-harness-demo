@@ -15,10 +15,23 @@
  * thing anyone has to do about it.
  */
 
+import { useState } from 'react'
+import { Button } from '../../../design-system/night-shift/components/core/Button.jsx'
 import type { Recap } from '@/lib/recap'
 import { AccountOffer } from '@/components/settings/AccountOffer'
+import { ShareResultSheet } from './ShareResultSheet'
+import { isEnabled } from '@/lib/flags'
+
+/**
+ * The share sheet hangs off this card because this card is the result: both
+ * end-of-tournament overlays (knocked out, champion) render it, so one line
+ * here covers both. It is behind `share-result` and invisible until a human
+ * turns that flag on.
+ */
+const SHARE_FLAG = 'share-result'
 
 export function RunRecap({ recap }: { recap: Recap }) {
+  const [sharing, setSharing] = useState(false)
   return (
     <div className="mx-auto mt-6 w-full max-w-sm rounded-3xl bg-white/5 p-5">
       {/* The overlay is always dark, so this block is on white alphas rather
@@ -40,7 +53,17 @@ export function RunRecap({ recap }: { recap: Recap }) {
           ))}
         </div>
       )}
+      {isEnabled(SHARE_FLAG) && (
+        <div className="mt-4 flex justify-center border-white/10 border-t pt-4">
+          <Button variant="quiet" onClick={() => setSharing(true)}>
+            Share this result
+          </Button>
+        </div>
+      )}
       <AccountOffer variant="overlay" />
+      {isEnabled(SHARE_FLAG) && (
+        <ShareResultSheet recap={recap} open={sharing} onOpenChange={setSharing} />
+      )}
     </div>
   )
 }
