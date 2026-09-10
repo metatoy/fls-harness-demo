@@ -1,0 +1,594 @@
+// The venue ladder — sit-and-go tournaments, low → high. To enter you need the
+// buy-in in your Roll; the buy-in IS your starting stack ("your pot"). Everyone
+// sits with equal stacks and plays until one player is left standing — the
+// winner takes the prize. Bust and you're out.
+
+import type { AiProfile } from '@/lib/poker/ai/policy'
+
+/** Format tag shown on the venue card (side tables). */
+export type VenueFormat = 'turbo' | 'hyper' | 'deep' | 'duel' | 'bounty'
+
+export const FORMAT_LABELS: Record<VenueFormat, string> = {
+  turbo: 'Turbo',
+  hyper: 'Hyper',
+  deep: 'Deep',
+  duel: 'Heads-up',
+  bounty: 'Bounty',
+}
+
+export interface Venue {
+  id: string
+  name: string
+  tagline: string
+  /** Chips to enter — deducted from your Roll, and your starting stack. */
+  buyIn: number
+  smallBlind: number
+  bigBlind: number
+  /** Total seats including the human. */
+  seats: number
+  /** Winner-take-all prize added to your Roll for taking the table down. */
+  prize: number
+  ai: AiProfile
+  /** Accent used on the menu card. */
+  accent: string
+  /** Format tag (side tables) — purely display; mechanics come from the overrides below. */
+  format?: VenueFormat
+  /** Free to enter (the broke-player safety net); stacks come from `startingStack`. */
+  freeroll?: boolean
+  /** Table stack when it differs from the buy-in (freerolls, deep-stack tables). */
+  startingStack?: number
+  /** Set false to keep blinds flat all game (see config/blinds). Defaults to true. */
+  escalation?: boolean
+  /** Blinds rise every N hands (defaults to HANDS_PER_LEVEL in config/blinds). */
+  handsPerLevel?: number
+  /** Chips paid instantly for each opponent the player busts. */
+  bounty?: number
+  /** The Daily Deal: one seeded tournament a day, same shuffle for everyone. */
+  daily?: boolean
+  /**
+   * Cash / ring table: fixed blinds, no prize, no elimination. Opponents rebuy
+   * to the table stack so the table stays full, and you stand up with your
+   * chips whenever you like. A place you dip into, not a tournament you finish.
+   */
+  cash?: boolean
+}
+
+// Low rungs escalate gently (handsPerLevel 12 → 9) — new players need room to
+// play poker before the blinds force shove-or-fold. From the Casino up the
+// default pacing applies and stack pressure becomes part of the difficulty.
+export const VENUES: readonly Venue[] = [
+  {
+    id: 'garage',
+    name: "Friends' Garage",
+    tagline: 'Lowest stakes. Loose, forgiving reads.',
+    buyIn: 100,
+    smallBlind: 1,
+    bigBlind: 2,
+    seats: 3,
+    prize: 300,
+    handsPerLevel: 12,
+    accent: '#7C8CF0',
+    ai: { tightness: 0.15, aggression: 0.25, bluff: 0.05, iterations: 300, skill: 0.28 },
+  },
+  {
+    id: 'pub',
+    name: 'The Pub',
+    tagline: 'Micro stakes. Friday-night amateurs.',
+    buyIn: 300,
+    smallBlind: 3,
+    bigBlind: 6,
+    seats: 5,
+    prize: 1_500,
+    handsPerLevel: 11,
+    accent: '#5AA9E6',
+    ai: { tightness: 0.22, aggression: 0.32, bluff: 0.06, iterations: 400, skill: 0.36 },
+  },
+  {
+    id: 'poolhall',
+    name: 'The Pool Hall',
+    tagline: 'Low stakes. Hustlers between shots.',
+    buyIn: 750,
+    smallBlind: 5,
+    bigBlind: 10,
+    seats: 5,
+    prize: 3_750,
+    handsPerLevel: 10,
+    accent: '#4FB477',
+    ai: { tightness: 0.28, aggression: 0.4, bluff: 0.08, iterations: 550, skill: 0.44 },
+  },
+  {
+    id: 'cardroom',
+    name: 'The Card Room',
+    tagline: 'Mid stakes. Tight, positional players.',
+    buyIn: 2_000,
+    smallBlind: 15,
+    bigBlind: 30,
+    seats: 6,
+    prize: 12_000,
+    handsPerLevel: 9,
+    accent: '#E0A458',
+    ai: { tightness: 0.38, aggression: 0.5, bluff: 0.11, iterations: 750, skill: 0.54 },
+  },
+  {
+    id: 'casino',
+    name: 'Downtown Casino',
+    tagline: 'High stakes. Aggressive, bluff-aware.',
+    buyIn: 5_000,
+    smallBlind: 25,
+    bigBlind: 50,
+    seats: 6,
+    prize: 30_000,
+    accent: '#D9534F',
+    ai: { tightness: 0.45, aggression: 0.58, bluff: 0.14, iterations: 950, skill: 0.64 },
+  },
+  {
+    id: 'riverboat',
+    name: 'The Riverboat',
+    tagline: 'Sharp locals who float and barrel.',
+    buyIn: 15_000,
+    smallBlind: 75,
+    bigBlind: 150,
+    seats: 6,
+    prize: 90_000,
+    accent: '#17A2B8',
+    ai: { tightness: 0.5, aggression: 0.62, bluff: 0.15, iterations: 1_100, skill: 0.74 },
+  },
+  {
+    id: 'penthouse',
+    name: 'The Penthouse',
+    tagline: 'Invite-only. Patient, positional killers.',
+    buyIn: 40_000,
+    smallBlind: 200,
+    bigBlind: 400,
+    seats: 6,
+    prize: 240_000,
+    accent: '#C049D4',
+    ai: { tightness: 0.52, aggression: 0.66, bluff: 0.16, iterations: 1_300, skill: 0.84 },
+  },
+  {
+    id: 'montecarlo',
+    name: 'Monte Carlo',
+    tagline: 'Old-money pros. Balanced, relentless.',
+    buyIn: 100_000,
+    smallBlind: 500,
+    bigBlind: 1_000,
+    seats: 6,
+    prize: 600_000,
+    accent: '#E8B923',
+    ai: { tightness: 0.55, aggression: 0.7, bluff: 0.17, iterations: 1_500, skill: 0.91 },
+  },
+  {
+    id: 'vegas',
+    name: 'Vegas Championship',
+    tagline: 'Elite field. Semi-bluffs, traps, thin value.',
+    buyIn: 300_000,
+    smallBlind: 1_500,
+    bigBlind: 3_000,
+    seats: 6,
+    prize: 1_800_000,
+    accent: '#FF7A45',
+    ai: { tightness: 0.58, aggression: 0.72, bluff: 0.18, iterations: 1_650, skill: 0.95 },
+  },
+  {
+    id: 'mainevent',
+    name: 'The Main Event',
+    tagline: 'The final boss. Near-optimal, merciless.',
+    buyIn: 1_000_000,
+    smallBlind: 5_000,
+    bigBlind: 10_000,
+    seats: 6,
+    prize: 6_000_000,
+    accent: '#F0574E',
+    // skill 1 is the top of the scale and the only rung that gets it: the final
+    // boss plays its best game. It was previously left off, which meant the same
+    // thing by way of AiProfile's default — stated here because an omission and a
+    // decision are indistinguishable in a config file (technology#68).
+    ai: { tightness: 0.6, aggression: 0.75, bluff: 0.2, iterations: 1_800, skill: 1 },
+  },
+] as const
+
+// Side tables — format twists off the main ladder, at low-to-mid stakes so they
+// never gate progression. Same engine, different pressure: pacing, stack depth,
+// seat count and knockout bounties are all just venue config.
+export const SIDE_TABLES: readonly Venue[] = [
+  {
+    id: 'redeye',
+    name: 'The Red-Eye',
+    tagline: 'Turbo. Blinds up every three hands.',
+    buyIn: 500,
+    smallBlind: 5,
+    bigBlind: 10,
+    seats: 5,
+    prize: 2_500,
+    format: 'turbo',
+    handsPerLevel: 3,
+    accent: '#E06D8C',
+    ai: { tightness: 0.25, aggression: 0.45, bluff: 0.07, iterations: 450, skill: 0.42 },
+  },
+  {
+    id: 'study',
+    name: 'The Study',
+    tagline: 'Deep stacks, slow blinds. Patience poker.',
+    buyIn: 1_000,
+    startingStack: 2_000,
+    smallBlind: 5,
+    bigBlind: 10,
+    seats: 5,
+    prize: 5_000,
+    format: 'deep',
+    handsPerLevel: 9,
+    accent: '#6E8B9E',
+    ai: { tightness: 0.4, aggression: 0.35, bluff: 0.08, iterations: 550, skill: 0.5 },
+  },
+  {
+    id: 'duel',
+    name: 'The Duel',
+    tagline: 'Heads-up. Just you and them.',
+    buyIn: 750,
+    smallBlind: 5,
+    bigBlind: 10,
+    seats: 2,
+    prize: 1_500,
+    format: 'duel',
+    accent: '#9A7FD1',
+    ai: { tightness: 0.35, aggression: 0.5, bluff: 0.1, iterations: 550, skill: 0.5 },
+  },
+  {
+    id: 'docks',
+    name: 'The Docks',
+    tagline: 'Bounty table. Knockouts pay on the spot.',
+    buyIn: 2_000,
+    smallBlind: 15,
+    bigBlind: 30,
+    seats: 6,
+    prize: 9_500,
+    format: 'bounty',
+    bounty: 500,
+    accent: '#C9873D',
+    ai: { tightness: 0.35, aggression: 0.5, bluff: 0.1, iterations: 700, skill: 0.56 },
+  },
+  {
+    id: 'allnighter',
+    name: 'The All-Nighter',
+    tagline: 'Hyper. Shallow stacks, blinds every two hands.',
+    buyIn: 1_500,
+    startingStack: 900,
+    smallBlind: 10,
+    bigBlind: 20,
+    seats: 5,
+    prize: 7_500,
+    format: 'hyper',
+    handsPerLevel: 2,
+    accent: '#8F6FE8',
+    ai: { tightness: 0.3, aggression: 0.55, bluff: 0.09, iterations: 550, skill: 0.52 },
+  },
+  {
+    id: 'chopshop',
+    name: 'The Chop Shop',
+    tagline: 'Turbo bounty. Fast blinds, heads on the block.',
+    buyIn: 5_000,
+    smallBlind: 30,
+    bigBlind: 60,
+    seats: 6,
+    prize: 22_500,
+    format: 'bounty',
+    bounty: 1_500,
+    handsPerLevel: 3,
+    accent: '#D95F43',
+    ai: { tightness: 0.38, aggression: 0.55, bluff: 0.11, iterations: 800, skill: 0.62 },
+  },
+  {
+    id: 'vault',
+    name: 'The Vault',
+    tagline: 'High-stakes heads-up. Bring your whole game.',
+    buyIn: 25_000,
+    smallBlind: 150,
+    bigBlind: 300,
+    seats: 2,
+    prize: 50_000,
+    format: 'duel',
+    accent: '#93A5B8',
+    ai: { tightness: 0.48, aggression: 0.6, bluff: 0.14, iterations: 1_100, skill: 0.78 },
+  },
+] as const
+
+// The Rail — cash / ring tables. Unlike the ladder, these never end and have no
+// prize: you sit down with a stack (a slice of your Roll), play any number of
+// hands, and stand up with whatever's in front of you. Opponents rebuy so the
+// table stays full; bust and you can rebuy or walk. Difficulty is the stake:
+// Micro is loose-passive, the nosebleeds are sharks, so a player of any level
+// finds an honest game just by picking their stake. That describes how the
+// seats play, not how anyone does against them: no room on the Rail has ever
+// had its beatability measured (technology#82). Every room is 100 big blinds
+// deep and blinds never escalate. (See docs/game-flow.md.)
+// Skill mirrors the post-rebalance ladder (~0.06 softer per rung): these tables
+// were authored after that retune, so their numbers were dialled to match it.
+// The canon four each sat 10x apart, which left a Micro grinder with an 800 roll
+// nowhere honest to sit. Small / Club / Big fill the geometric midpoints, so every
+// step is now ~3x, and their AI profiles are interpolated from their neighbours.
+export const RING_TABLES: readonly Venue[] = [
+  {
+    id: 'ring-micro',
+    name: 'Micro Ring',
+    tagline: 'Loosest cash game. Sit down, stand up anytime.',
+    buyIn: 200,
+    startingStack: 200,
+    smallBlind: 1,
+    bigBlind: 2,
+    seats: 5,
+    prize: 0,
+    cash: true,
+    escalation: false,
+    accent: '#7C8CF0',
+    // Loose-passive on purpose: calls too much, rarely bluffs. That half is
+    // measured: tests/ai.test.ts bands every table in ALL_VENUES on VPIP and PFR,
+    // this one included, so it fails if the profile drifts out of the band.
+    // Whether a beginner *beats* it has never been measured and this file should
+    // not imply it has. `pnpm sim` cannot answer it: it plays a cash table as a
+    // freezeout and every ring prize is 0, so its win-rate and EV columns say
+    // nothing here (technology#81). The claim players actually see is the
+    // tagline, and it is deliberately weaker than this comment used to be.
+    ai: { tightness: 0.16, aggression: 0.2, bluff: 0.04, iterations: 350, skill: 0.24 },
+  },
+  {
+    id: 'ring-small',
+    name: 'Small Ring',
+    tagline: 'Cash game. Loose, with a bit more bite.',
+    buyIn: 600,
+    startingStack: 600,
+    smallBlind: 3,
+    bigBlind: 6,
+    seats: 5,
+    prize: 0,
+    cash: true,
+    escalation: false,
+    accent: '#5AA9E6',
+    ai: { tightness: 0.24, aggression: 0.31, bluff: 0.06, iterations: 500, skill: 0.36 },
+  },
+  {
+    id: 'ring-low',
+    name: 'Low Ring',
+    tagline: 'Cash game. Friday-night regulars.',
+    buyIn: 2_000,
+    startingStack: 2_000,
+    smallBlind: 10,
+    bigBlind: 20,
+    seats: 6,
+    prize: 0,
+    cash: true,
+    escalation: false,
+    accent: '#4FB477',
+    ai: { tightness: 0.32, aggression: 0.42, bluff: 0.09, iterations: 700, skill: 0.49 },
+  },
+  {
+    id: 'ring-club',
+    name: 'Club Ring',
+    tagline: 'Cash game. Thinking players, still exploitable.',
+    buyIn: 6_000,
+    startingStack: 6_000,
+    smallBlind: 30,
+    bigBlind: 60,
+    seats: 6,
+    prize: 0,
+    cash: true,
+    escalation: false,
+    accent: '#E8B923',
+    ai: { tightness: 0.41, aggression: 0.52, bluff: 0.12, iterations: 900, skill: 0.61 },
+  },
+  {
+    id: 'ring-mid',
+    name: 'Mid Ring',
+    tagline: 'Cash game. Solid, bluff-aware players.',
+    buyIn: 20_000,
+    startingStack: 20_000,
+    smallBlind: 100,
+    bigBlind: 200,
+    seats: 6,
+    prize: 0,
+    cash: true,
+    escalation: false,
+    accent: '#E0A458',
+    ai: { tightness: 0.5, aggression: 0.62, bluff: 0.15, iterations: 1_150, skill: 0.74 },
+  },
+  {
+    id: 'ring-big',
+    name: 'Big Ring',
+    tagline: 'Big cash. Sharp, patient, hard to bluff.',
+    buyIn: 60_000,
+    startingStack: 60_000,
+    smallBlind: 300,
+    bigBlind: 600,
+    seats: 6,
+    prize: 0,
+    cash: true,
+    escalation: false,
+    accent: '#FF7A45',
+    ai: { tightness: 0.54, aggression: 0.67, bluff: 0.16, iterations: 1_350, skill: 0.82 },
+  },
+  {
+    id: 'ring-high',
+    name: 'High Ring',
+    tagline: 'Nosebleed cash. Sharks only.',
+    buyIn: 200_000,
+    startingStack: 200_000,
+    smallBlind: 1_000,
+    bigBlind: 2_000,
+    seats: 6,
+    prize: 0,
+    cash: true,
+    escalation: false,
+    accent: '#D9534F',
+    ai: { tightness: 0.57, aggression: 0.72, bluff: 0.18, iterations: 1_600, skill: 0.89 },
+  },
+] as const
+
+// Challenge tables: where a cast member's standing challenge is played out.
+// One per band, heads-up, and the character is NOT part of the config: the
+// venue supplies the stakes and the difficulty, `lib/challenge` supplies who is
+// sitting opposite. Same split as everywhere else: skill is venue-owned, the
+// character brings their delta and their face (see docs/venues.md).
+//
+// Buy-ins deliberately sit *between* the ladder rungs rather than on them. A
+// challenge pays ~2.5x where a ladder duel pays 2x, so putting one at The
+// Duel's 750 would leave The Duel with no reason to exist. Stacks are 50-75bb,
+// the same depth as the other heads-up tables.
+//
+// These are reachable (`ALL_VENUES`, and therefore `venueById` and the static
+// export) as of the card landing, but reaching one by guessing the URL is not
+// enough to play it: `PlayClient` turns you away unless the table matches the
+// challenge you actually have standing, so a 2.5x heads-up game is never a
+// repeatable farm (technology#22).
+export const CHALLENGE_TABLES: readonly Venue[] = [
+  {
+    id: 'challenge-low',
+    name: 'The Challenge',
+    tagline: 'Heads-up. They asked for this.',
+    buyIn: 500,
+    smallBlind: 5,
+    bigBlind: 10,
+    seats: 2,
+    prize: 1_250,
+    format: 'duel',
+    accent: '#9A7FD1',
+    ai: { tightness: 0.28, aggression: 0.42, bluff: 0.08, iterations: 500, skill: 0.4 },
+  },
+  {
+    id: 'challenge-mid',
+    name: 'The Challenge',
+    tagline: 'Heads-up. They asked for this.',
+    buyIn: 8_000,
+    smallBlind: 60,
+    bigBlind: 120,
+    seats: 2,
+    prize: 20_000,
+    format: 'duel',
+    accent: '#8F6FE8',
+    ai: { tightness: 0.42, aggression: 0.55, bluff: 0.12, iterations: 850, skill: 0.62 },
+  },
+  {
+    id: 'challenge-high',
+    name: 'The Challenge',
+    tagline: 'Heads-up. They asked for this.',
+    buyIn: 50_000,
+    smallBlind: 350,
+    bigBlind: 700,
+    seats: 2,
+    prize: 125_000,
+    format: 'duel',
+    accent: '#C049D4',
+    ai: { tightness: 0.52, aggression: 0.65, bluff: 0.16, iterations: 1_200, skill: 0.8 },
+  },
+] as const
+
+// Harness demo: every visitor is dropped onto the Rail with a stack big enough to sit
+// at any cash table without a tour of the ladder first. Upstream ships 200 (two Garage
+// buy-ins); this fork is a demo, not a progression game.
+export const STARTING_ROLL = 200_000
+
+// The broke-player safety net: a free sit-and-go that opens only when you can't
+// afford the Garage. No buy-in, everyone gets a nominal stack, and the winner
+// takes home enough to buy back into the ladder. You win your way back in —
+// there is no free top-up. The table stack is never yours: leaving a freeroll
+// cashes out nothing (only the winner's prize pays). Deliberately a speed bump,
+// not a wall: heads-up vs the softest AI, blinds never escalate, so a decent
+// player wins it more often than not. (See docs/game-flow.md.)
+export const KITCHEN_TABLE: Venue = {
+  id: 'kitchen',
+  name: 'The Kitchen Table',
+  tagline: 'Freeroll. Win your way back in.',
+  buyIn: 0,
+  // 25bb heads-up (was 50bb): flat blinds mean a fold-heavy opponent transfers
+  // chips slowly, so a deep stack made the freeroll a long grind even though
+  // it's easy. Halving the stack halves the hands-to-win without touching AI
+  // skill or blinds — still soft, just quicker to close out.
+  startingStack: 50,
+  smallBlind: 1,
+  bigBlind: 2,
+  seats: 2,
+  prize: 150,
+  freeroll: true,
+  escalation: false,
+  accent: '#64B98C',
+  // Low skill is what makes this beatable: heads-up, a sound equity bot is
+  // brutal however "loose" it is. This one misreads its hand and folds under
+  // pressure — and since the AI now ranges its opponent (folding more to a
+  // bettor), heads-up it plays soft enough that a competent player wins it
+  // ~95%+. That's the intent: the freeroll is a speed bump, a near-gimme back
+  // onto the ladder, not a wall.
+  ai: { tightness: 0.55, aggression: 0.15, bluff: 0.03, iterations: 80, skill: 0.3 },
+}
+
+// The Daily Deal — one tournament a day, dealt from a date-derived seed, so
+// everyone in the world who sits down today plays the identical shuffle. The
+// open, deterministic engine makes that provably true (see docs/game-flow.md).
+// It costs a real buy-in — there is no free top-up — and it can be played once:
+// abandoning counts as played (the shuffle is knowable, so re-deals would be
+// an exploit). Same cards, same opponents — your play makes the difference.
+export const THE_DAILY: Venue = {
+  id: 'daily',
+  name: 'The Daily',
+  tagline: 'One deal a day. Same cards for everyone.',
+  buyIn: 500,
+  smallBlind: 5,
+  bigBlind: 10,
+  seats: 5,
+  prize: 2_500,
+  daily: true,
+  accent: '#7C8CF0', // the pip periwinkle — it's the house special
+  ai: { tightness: 0.3, aggression: 0.45, bluff: 0.08, iterations: 500, skill: 0.45 },
+}
+
+/** The freeroll opens only while the player can't afford the ladder's bottom rung. */
+export function freerollOpen(roll: number): boolean {
+  return roll < VENUES[0].buyIn
+}
+
+/**
+ * Every table a player can sit at, in one list.
+ *
+ * It exists so route resolution and route *generation* cannot drift: under the
+ * static export, an id that `venueById` knows but `generateStaticParams` never
+ * emitted is a 404 with a fully green build. Both read this.
+ */
+export const ALL_VENUES: readonly Venue[] = [
+  ...VENUES,
+  ...SIDE_TABLES,
+  ...RING_TABLES,
+  ...CHALLENGE_TABLES,
+  KITCHEN_TABLE,
+  THE_DAILY,
+]
+
+export function venueById(id: string): Venue | undefined {
+  return ALL_VENUES.find((v) => v.id === id)
+}
+
+/** Can the player afford this venue's buy-in? */
+export function canAfford(venue: Venue, roll: number): boolean {
+  return roll >= venue.buyIn
+}
+
+/** The table stack a venue seats you with (game.ts derives it the same way). */
+function tableStack(venue: Venue): number {
+  return venue.startingStack ?? venue.buyIn
+}
+
+/**
+ * What a stack is worth in Roll chips when you stand up.
+ *
+ * At almost every table it is the stack, because the buy-in *is* the starting
+ * stack. The two that override it deal chips that are not Roll chips: The Study
+ * sells a 2,000 stack for 1,000, the All-Nighter a 900 stack for 1,500. Paying
+ * those back at face value printed 1,000 chips for sitting down and standing up
+ * again at one, and ate 600 at the other, whichever way the hands went
+ * (technology#89).
+ *
+ * A freeroll pays back nothing: those are the house's chips and only the prize
+ * cashes, which is what stops the Kitchen Table being farmed for its stack.
+ */
+export function cashOutValue(venue: Venue, stack: number): number {
+  if (venue.freeroll) return 0
+  const stackSize = tableStack(venue)
+  if (stackSize <= 0 || stackSize === venue.buyIn) return stack
+  return Math.round(stack * (venue.buyIn / stackSize))
+}
