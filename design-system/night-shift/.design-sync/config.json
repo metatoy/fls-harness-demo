@@ -1,0 +1,6 @@
+{
+  "projectId": "65396e49-13f8-49dc-804d-d22d0165635c",
+  "projectName": "Night Shift",
+  "shape": "prebuilt",
+  "note": "This folder is already in Claude Design design-system layout (styles.css + tokens/ + components/**/*.card.html + guidelines/ + theme.json + SKILL.md + thumbnail.html). No converter/build step applies: the sync uploads the folder as-is. Cards are indexed from the first-line @dsCard markers."
+}

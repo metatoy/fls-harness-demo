@@ -2,46 +2,45 @@
 <!DOCTYPE html>
 <html><head><meta charset="utf-8" /><link rel="stylesheet" href="../../styles.css" />
 <style>
+  /* Specimen layout only. Every component below is styled by the shipped
+     component layer in styles.css — this page must never restate it. */
   body { padding: 22px 24px; background: var(--ns-ground); }
-  .g { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .g { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
   .lbl { font: var(--ns-t-label); letter-spacing: var(--ns-track); text-transform: uppercase; color: var(--ns-muted); margin: 18px 0 8px; }
   .lbl:first-child { margin-top: 0; }
-  .btn { font: 500 14px var(--ns-ui); min-height: var(--ns-tap); padding: 0 18px; border-radius: var(--ns-r-sm);
-         border: 1px solid var(--ns-line); background: var(--ns-raised-2); color: var(--ns-text); cursor: pointer; }
-  .btn--act { background: var(--ns-signal); border-color: var(--ns-signal); color: var(--ns-signal-ink); font-weight: 600; }
-  .btn--fold { background: transparent; color: var(--ns-text-2); }
-  .btn--danger { background: transparent; border-color: #5A2325; color: var(--ns-lose); }
-  .btn:disabled { opacity: .45; }
-  .badge { display:inline-block; font: var(--ns-t-label); letter-spacing: var(--ns-track); text-transform: uppercase;
-           padding: 4px 9px; border-radius: var(--ns-r-full); border: 1px solid var(--ns-line); color: var(--ns-text-2); }
-  .badge--turn { background: var(--ns-signal-glow); border-color: var(--ns-signal-dim); color: var(--ns-signal); }
-  .badge--win  { background: rgba(95,208,138,.14); border-color: #2C5C41; color: var(--ns-win); }
-  .badge--lose { background: rgba(229,72,77,.14); border-color: #5A2325; color: var(--ns-lose); }
-  .badge--warn { background: rgba(245,165,36,.14); border-color: #5C441A; color: var(--ns-warn); }
 </style></head>
 <body>
   <div class="lbl">Button — one accented action per screen</div>
   <div class="g">
-    <button class="btn btn--act">Call 4,000</button>
-    <button class="btn">Raise to 12,000</button>
-    <button class="btn btn--fold">Fold</button>
-    <button class="btn btn--danger">Leave table</button>
-    <button class="btn" disabled>Check</button>
+    <button class="ns-btn ns-btn--act">Call 4,000</button>
+    <button class="ns-btn">Raise to 12,000</button>
+    <button class="ns-btn ns-btn--fold">Fold</button>
+    <button class="ns-btn ns-btn--danger">Leave table</button>
+    <button class="ns-btn" disabled>Check</button>
   </div>
 
   <div class="lbl">Badge — state said in a word, never colour alone</div>
-  <div class="g">
-    <span class="badge badge--turn">Your turn</span>
-    <span class="badge badge--win">Pot won</span>
-    <span class="badge badge--lose">Busted</span>
-    <span class="badge badge--warn">Blinds up</span>
-    <span class="badge">Sitting out</span>
+  <div class="g" style="align-items:center">
+    <span class="ns-badge ns-badge--turn">Your turn</span>
+    <span class="ns-badge ns-badge--win">Pot won</span>
+    <span class="ns-badge ns-badge--lose">Busted</span>
+    <span class="ns-badge ns-badge--warn">Blinds up</span>
+    <span class="ns-badge">Sitting out</span>
   </div>
 
   <div class="lbl">Figure — tabular, grouped, never celebratory</div>
   <div class="g" style="gap:36px">
-    <div><div class="ns-label">Your roll</div><div class="ns-figure-l" style="margin-top:4px">200,000</div></div>
-    <div><div class="ns-label">Stack</div><div class="ns-figure" style="margin-top:4px">12,400</div></div>
-    <div><div class="ns-label">Won</div><div class="ns-figure" style="margin-top:4px;color:var(--ns-win)">4,200</div></div>
+    <div class="ns-fig">
+      <div class="ns-fig__label">Your roll</div>
+      <div class="ns-fig__v ns-fig__v--lg">200,000</div>
+    </div>
+    <div class="ns-fig">
+      <div class="ns-fig__label">Stack</div>
+      <div class="ns-fig__v">12,400</div>
+    </div>
+    <div class="ns-fig">
+      <div class="ns-fig__label">Won</div>
+      <div class="ns-fig__v ns-fig__v--win">4,200</div>
+    </div>
   </div>
 </body></html>

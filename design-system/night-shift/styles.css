@@ -158,6 +158,18 @@ a:hover { color: #4ADAF0; }
 
 /* PotDisplay — it counts, it never performs. */
 .ns-pot { text-align: center; }
+.ns-pot__label {
+  font: var(--ns-t-label);
+  letter-spacing: var(--ns-track);
+  text-transform: uppercase;
+  color: var(--ns-muted);
+}
+.ns-pot__v {
+  font: var(--ns-t-figure-l);
+  font-variant-numeric: tabular-nums;
+  color: var(--ns-text);
+  margin-top: 4px;
+}
 .ns-pot__chips { margin-top: var(--ns-s-2); }
 
 /* Figure */

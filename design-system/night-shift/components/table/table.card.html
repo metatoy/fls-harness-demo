@@ -2,57 +2,56 @@
 <!DOCTYPE html>
 <html><head><meta charset="utf-8" /><link rel="stylesheet" href="../../styles.css" />
 <style>
+  /* Specimen layout only. Every component below is styled by the shipped
+     component layer in styles.css — this page must never restate it. */
   body { padding: 22px 24px; background: var(--ns-felt); }
   .g { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
   .lbl { font: var(--ns-t-label); letter-spacing: var(--ns-track); text-transform: uppercase; color: var(--ns-muted); margin: 18px 0 8px; }
   .lbl:first-child { margin-top: 0; }
-  .card { width: var(--ns-card-w); height: var(--ns-card-h); border-radius: var(--ns-r-sm); background: var(--ns-cardface);
-          color: var(--ns-card-ink); box-shadow: var(--ns-lift-card); display: flex; flex-direction: column;
-          justify-content: space-between; padding: 7px 8px; box-sizing: border-box; }
-  .card__r { font: 600 19px/1 var(--ns-ui); } .card__s { font: 16px/1 var(--ns-ui); text-align: right; }
-  .red { color: var(--ns-suit-red); } .blue { color: var(--ns-suit-blue); } .green { color: var(--ns-suit-green); }
-  .back { background: var(--ns-card-back); background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.045) 0 6px, transparent 6px 12px); }
-  .chip { width: var(--ns-chip); height: var(--ns-chip); border-radius: var(--ns-r-full); display: grid; place-items: center;
-          font: 600 11px var(--ns-figure); box-shadow: 0 0 0 3px var(--ns-chip-edge) inset, 0 2px 6px rgba(0,0,0,.4); }
-  .seat { display: flex; gap: 12px; align-items: center; background: var(--ns-raised); border: 1px solid var(--ns-line);
-          border-radius: var(--ns-r-md); padding: 10px 14px; min-width: 224px; }
-  .seat--turn { border-color: var(--ns-signal-dim); box-shadow: 0 0 0 1px var(--ns-signal-dim), 0 0 24px var(--ns-signal-glow); }
-  .av { width:36px;height:36px;border-radius:var(--ns-r-full);background:var(--ns-raised-2);display:grid;place-items:center;
-        font:600 13px var(--ns-ui);color:var(--ns-text-2) }
-  .badge { font: var(--ns-t-label); letter-spacing: var(--ns-track); text-transform: uppercase; padding: 4px 9px;
-           border-radius: var(--ns-r-full); border: 1px solid var(--ns-line); color: var(--ns-text-2); }
-  .badge--turn { background: var(--ns-signal-glow); border-color: var(--ns-signal-dim); color: var(--ns-signal); }
-  .badge--win { background: rgba(95,208,138,.14); border-color: #2C5C41; color: var(--ns-win); }
 </style></head>
 <body>
   <div class="lbl">PlayingCard — rank, suit, nothing else</div>
   <div class="g" style="gap:8px">
-    <div class="card red"><div class="card__r">A</div><div class="card__s">♥</div></div>
-    <div class="card red"><div class="card__r">10</div><div class="card__s">♦</div></div>
-    <div class="card"><div class="card__r">Q</div><div class="card__s">♠</div></div>
-    <div class="card blue"><div class="card__r">7</div><div class="card__s">♣</div></div>
-    <div class="card back"></div>
+    <div class="ns-card" style="color:var(--ns-suit-red)"><div class="ns-card__r">A</div><div class="ns-card__s">♥</div></div>
+    <div class="ns-card" style="color:var(--ns-suit-red)"><div class="ns-card__r">10</div><div class="ns-card__s">♦</div></div>
+    <div class="ns-card" style="color:var(--ns-suit-black)"><div class="ns-card__r">Q</div><div class="ns-card__s">♠</div></div>
+    <div class="ns-card" style="color:var(--ns-suit-blue)"><div class="ns-card__r">7</div><div class="ns-card__s">♣</div></div>
+    <div class="ns-card ns-card--back"></div>
   </div>
 
   <div class="lbl">ChipStack — value printed as well as coloured</div>
-  <div class="g" style="gap:0">
-    <div class="chip" style="background:var(--ns-chip-1k);color:#241703">1K</div>
-    <div class="chip" style="background:var(--ns-chip-500);color:#140F2E;margin-left:var(--ns-chip-overlap)">500</div>
-    <div class="chip" style="background:var(--ns-chip-100);color:var(--ns-text);margin-left:var(--ns-chip-overlap)">100</div>
-    <div class="chip" style="background:var(--ns-chip-25);color:#0C1F14;margin-left:var(--ns-chip-overlap)">25</div>
-    <div class="chip" style="background:var(--ns-chip-5);color:#fff;margin-left:var(--ns-chip-overlap)">5</div>
-    <div class="chip" style="background:var(--ns-chip-1);color:#15130F;margin-left:var(--ns-chip-overlap)">1</div>
+  <div class="ns-stack">
+    <div class="ns-chip" style="background:var(--ns-chip-1k);color:#241703">1K</div>
+    <div class="ns-chip" style="background:var(--ns-chip-500);color:#140F2E;margin-left:var(--ns-chip-overlap)">500</div>
+    <div class="ns-chip" style="background:var(--ns-chip-100);color:var(--ns-text);margin-left:var(--ns-chip-overlap)">100</div>
+    <div class="ns-chip" style="background:var(--ns-chip-25);color:#0C1F14;margin-left:var(--ns-chip-overlap)">25</div>
+    <div class="ns-chip" style="background:var(--ns-chip-5);color:#fff;margin-left:var(--ns-chip-overlap)">5</div>
+    <div class="ns-chip" style="background:var(--ns-chip-1);color:#15130F;margin-left:var(--ns-chip-overlap)">1</div>
   </div>
 
   <div class="lbl">Seat — at rest, and on the clock</div>
   <div class="g">
-    <div class="seat"><div class="av">MK</div><div style="flex:1"><div style="font:500 14px var(--ns-ui)">Mikko</div><div class="ns-figure" style="color:var(--ns-text-2)">12,400</div></div><span class="badge">Fold</span></div>
-    <div class="seat seat--turn"><div class="av" style="color:var(--ns-signal)">YOU</div><div style="flex:1"><div style="font:500 14px var(--ns-ui)">Guest</div><div class="ns-figure" style="color:var(--ns-text-2)">200,000</div></div><span class="badge badge--turn">Your turn</span></div>
+    <div class="ns-seat">
+      <div class="ns-seat__av">MK</div>
+      <div class="ns-seat__body">
+        <div class="ns-seat__n">Mikko</div>
+        <div class="ns-seat__s">12,400</div>
+      </div>
+      <span class="ns-badge">Fold</span>
+    </div>
+    <div class="ns-seat ns-seat--turn">
+      <div class="ns-seat__av" style="color:var(--ns-signal)">YOU</div>
+      <div class="ns-seat__body">
+        <div class="ns-seat__n">Guest</div>
+        <div class="ns-seat__s">200,000</div>
+      </div>
+      <span class="ns-badge ns-badge--turn">Your turn</span>
+    </div>
   </div>
 
   <div class="lbl">PotDisplay — it counts, it does not perform</div>
-  <div style="text-align:left">
-    <div class="ns-label">Pot</div>
-    <div class="ns-figure-l" style="margin-top:4px">18,600</div>
+  <div class="ns-pot" style="text-align:left">
+    <div class="ns-pot__label">Pot</div>
+    <div class="ns-pot__v">18,600</div>
   </div>
 </body></html>
