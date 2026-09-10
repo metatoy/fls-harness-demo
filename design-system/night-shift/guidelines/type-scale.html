@@ -1,0 +1,24 @@
+<!-- @dsCard group="Type" name="Type scale" subtitle="Two voices; every figure tabular" viewport="700x330" -->
+<!DOCTYPE html>
+<html><head><meta charset="utf-8" /><link rel="stylesheet" href="../styles.css" />
+<style>
+  body { padding: 22px 24px; background: var(--ns-ground); }
+  table { border-collapse: collapse; width: 100%; font: var(--ns-t-small); }
+  th { text-align: left; font: var(--ns-t-label); letter-spacing: var(--ns-track); text-transform: uppercase; color: var(--ns-muted); padding: 0 0 10px; }
+  td { padding: 9px 0; border-top: 1px solid var(--ns-line-soft); color: var(--ns-text-2); }
+  td:first-child { color: var(--ns-text); white-space: nowrap; padding-right: 22px; }
+  code { font: 12px var(--ns-figure); color: var(--ns-signal); }
+  .note { font: var(--ns-t-small); color: var(--ns-muted); margin-top: 14px; max-width: 68ch; }
+</style></head>
+<body>
+  <table>
+    <tr><th>Role</th><th>Spec</th><th>Where</th></tr>
+    <tr><td>display</td><td><code>700 30px/1.05</code> Instrument Sans, <code>-.01em</code></td><td>screen titles</td></tr>
+    <tr><td>title</td><td><code>600 20px/1.2</code></td><td>panel and dialog headings</td></tr>
+    <tr><td>body</td><td><code>400 15px/1.55</code></td><td>reading text, dialog copy</td></tr>
+    <tr><td>label</td><td><code>500 11px</code> IBM Plex Mono, uppercase, <code>.12em</code></td><td>every label, meta line, section head</td></tr>
+    <tr><td>figure</td><td><code>500 16px</code> Plex Mono, tabular</td><td>stacks, bets, blinds</td></tr>
+    <tr><td>figure-l</td><td><code>600 28px</code> Plex Mono, tabular</td><td>the pot, the Roll</td></tr>
+  </table>
+  <div class="note">Figures are tabular everywhere, so a stack counting down never shifts the row it lives in. Never size text in pixels outside a card face: a caption frozen in px while the paragraph around it scales is exactly the failure that text-resize accessibility is about.</div>
+</body></html>

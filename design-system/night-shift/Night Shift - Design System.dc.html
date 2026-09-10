@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="./tokens.css" />
+        <style>
+          body { background: var(--ns-felt); color: var(--ns-text); font-family: var(--ns-ui); margin: 0; }
+          .page { max-width: 1100px; margin: 0 auto; padding: 0 0 96px; }
+          .sect { padding: 44px 48px; border-top: 1px solid var(--ns-line); }
+          .lbl { font: var(--ns-t-label); letter-spacing: var(--ns-track); text-transform: uppercase; color: var(--ns-muted); }
+          .h { font: var(--ns-t-title); margin: 10px 0 0; letter-spacing: -.01em; }
+          .p { font: var(--ns-t-body); color: var(--ns-text-2); max-width: 62ch; margin: 12px 0 0; }
+          .fig { font: var(--ns-t-figure); font-variant-numeric: tabular-nums; }
+          .row { display: flex; gap: var(--ns-s-4); flex-wrap: wrap; align-items: flex-start; }
+          .grid { display: grid; gap: var(--ns-s-3); }
+          .panel { background: var(--ns-raised); border: 1px solid var(--ns-line); border-radius: var(--ns-r-md); box-shadow: var(--ns-lift-1); padding: var(--ns-s-5); }
+
+          /* swatches */
+          .sw { border-radius: var(--ns-r-sm); height: 68px; border: 1px solid rgba(255,255,255,.07); }
+          .swn { font: var(--ns-t-label); letter-spacing: .04em; color: var(--ns-text); margin-top: 8px; }
+          .swr { font: var(--ns-t-small); color: var(--ns-muted); }
+
+          /* the components themselves */
+          .btn { font: 500 14px var(--ns-ui); min-height: var(--ns-tap); padding: 0 18px; border-radius: var(--ns-r-sm);
+                 border: 1px solid var(--ns-line); background: var(--ns-raised-2); color: var(--ns-text); cursor: pointer;
+                 transition: background var(--ns-m-state) var(--ns-m-ease), transform var(--ns-m-state) var(--ns-m-ease); }
+          .btn:hover { background: #383433; }
+          .btn:active { transform: scale(.985); }
+          .btn:focus-visible { outline: 2px solid var(--ns-signal); outline-offset: 2px; }
+          .btn--act { background: var(--ns-signal); border-color: var(--ns-signal); color: var(--ns-signal-ink); font-weight: 600; }
+          .btn--fold { background: transparent; color: var(--ns-text-2); }
+          .btn--danger { background: transparent; border-color: #5A2325; color: var(--ns-lose); }
+
+          .badge { font: var(--ns-t-label); letter-spacing: var(--ns-track); text-transform: uppercase;
+                   padding: 4px 9px; border-radius: var(--ns-r-full); border: 1px solid var(--ns-line); color: var(--ns-text-2); }
+          .badge--turn { background: var(--ns-signal-glow); border-color: var(--ns-signal-dim); color: var(--ns-signal); }
+          .badge--win  { background: rgba(95,208,138,.14); border-color: #2C5C41; color: var(--ns-win); }
+          .badge--warn { background: rgba(245,165,36,.14); border-color: #5C441A; color: var(--ns-warn); }
+
+          /* cards */
+          .card { width: 62px; height: 88px; border-radius: var(--ns-r-sm); background: var(--ns-cardface); color: var(--ns-card-ink);
+                  box-shadow: var(--ns-lift-card); display: flex; flex-direction: column; justify-content: space-between; padding: 7px 8px; }
+          .card__r { font: 600 19px/1 var(--ns-ui); }
+          .card__s { font: 16px/1 var(--ns-ui); text-align: right; }
+          .card--red { color: var(--ns-suit-red); }
+          .card--blue { color: var(--ns-suit-blue); }
+          .card--back { background: var(--ns-card-back); box-shadow: var(--ns-lift-card);
+                        background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.045) 0 6px, transparent 6px 12px); }
+
+          /* chips */
+          .chip { width: 38px; height: 38px; border-radius: var(--ns-r-full); display: grid; place-items: center;
+                  font: 600 11px var(--ns-figure); box-shadow: 0 0 0 3px var(--ns-chip-edge) inset, 0 2px 6px rgba(0,0,0,.4); }
+
+          /* a seat */
+          .seat { display: flex; gap: var(--ns-s-3); align-items: center; background: var(--ns-raised); border: 1px solid var(--ns-line);
+                  border-radius: var(--ns-r-md); padding: 10px 14px; min-width: 224px; }
+          .seat--turn { border-color: var(--ns-signal-dim); box-shadow: 0 0 0 1px var(--ns-signal-dim), 0 0 24px var(--ns-signal-glow); }
+          .seat__av { width: 36px; height: 36px; border-radius: var(--ns-r-full); background: var(--ns-raised-2); display: grid; place-items: center;
+                      font: 600 13px var(--ns-ui); color: var(--ns-text-2); flex-shrink: 0; }
+          .seat__n { font: 500 14px var(--ns-ui); }
+          .seat__s { font: var(--ns-t-figure); font-variant-numeric: tabular-nums; color: var(--ns-text-2); }
+
+          .do { color: var(--ns-win); font-weight: 600; }
+          .dont { color: var(--ns-lose); font-weight: 600; }
+          table { border-collapse: collapse; width: 100%; font: var(--ns-t-small); }
+          th { text-align: left; font: var(--ns-t-label); letter-spacing: var(--ns-track); text-transform: uppercase; color: var(--ns-muted); padding: 0 0 10px; }
+          td { padding: 9px 0; border-top: 1px solid var(--ns-line-soft); color: var(--ns-text-2); vertical-align: top; }
+          td:first-child { color: var(--ns-text); white-space: nowrap; padding-right: 20px; }
+          code { font: 12px var(--ns-figure); color: var(--ns-signal); }
+        </style>
+      </helmet>
+
+      <div class="page">
+
+        <div class="sect" style="border-top:none;padding-top:60px" data-screen-label="Cover">
+          <div class="row" style="justify-content:space-between">
+            <div class="lbl">NS-1.0 · DESIGN SYSTEM</div>
+            <div class="lbl">DIRECTION — NIGHT SHIFT</div>
+          </div>
+          <div style="font:700 72px/.95 var(--ns-ui);letter-spacing:-.03em;margin-top:26px">Night Shift</div>
+          <div class="p" style="font-size:17px;max-width:64ch">
+            Poker is played one-handed, in poor light, late. So the room is a warm dark you can sit in
+            for an hour, and exactly one cool accent means <b style="color:var(--ns-signal)">it is your turn</b>.
+            No felt green, no gold, no clinking. The table is the product and everything else gets out of the way.
+          </div>
+          <div class="row" style="margin-top:32px;align-items:flex-end">
+            <div class="card card--red"><div class="card__r">A</div><div class="card__s">♥</div></div>
+            <div class="card"><div class="card__r">K</div><div class="card__s">♠</div></div>
+            <div class="card card--back"></div>
+            <div style="display:flex;margin-left:12px">
+              <div class="chip" style="background:var(--ns-chip-1);color:#15130F">1</div>
+              <div class="chip" style="background:var(--ns-chip-5);color:#fff;margin-left:-10px">5</div>
+              <div class="chip" style="background:var(--ns-chip-25);color:#0C1F14;margin-left:-10px">25</div>
+              <div class="chip" style="background:var(--ns-chip-1k);color:#241703;margin-left:-10px">1K</div>
+            </div>
+            <div style="margin-left:auto;text-align:right">
+              <div class="lbl">YOUR ROLL</div>
+              <div style="font:var(--ns-t-figure-l);font-variant-numeric:tabular-nums;margin-top:4px">200,000</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sect">
+          <div class="lbl">§1 · NORTH STARS</div>
+          <div class="grid" style="grid-template-columns:repeat(2,1fr);margin-top:16px">
+            <div class="panel"><div class="h" style="font-size:16px">The table is the product</div><div class="p" style="font-size:14px">Everything that is not cards, chips or people is overhead. The system earns its keep by disappearing during a hand.</div></div>
+            <div class="panel"><div class="h" style="font-size:16px">Money is information</div><div class="p" style="font-size:14px">Stacks, pot and the Roll are figures read under time pressure. They line up, they never jitter, they never celebrate at you.</div></div>
+            <div class="panel"><div class="h" style="font-size:16px">It is play money and it says so</div><div class="p" style="font-size:14px">No near-miss theatre, no manufactured urgency, no dark patterns. The honesty is the differentiator.</div></div>
+            <div class="panel"><div class="h" style="font-size:16px">Legible one-handed, in the dark</div><div class="p" style="font-size:14px">Contrast and target size are structural, decided here, not audited later.</div></div>
+            <div class="panel" style="grid-column:span 2"><div class="h" style="font-size:16px">Motion reports state</div><div class="p" style="font-size:14px">Cards deal, chips travel, the pot moves. Motion carries information about a change and nothing else. A screenshot of the table looks identical to the table at rest.</div></div>
+          </div>
+        </div>
+
+        <div class="sect">
+          <div class="lbl">§2 · COLOUR — A WARM ROOM AND ONE COOL SIGNAL</div>
+          <div class="p">The ramp is warm because a cold dark reads as clinical after twenty minutes. The accent is cool
+            because it has to be unmistakable against that room. The temperature contrast <i>is</i> the idea.</div>
+          <div class="grid" style="grid-template-columns:repeat(6,1fr);margin-top:18px">
+            <div><div class="sw" style="background:var(--ns-felt)"></div><div class="swn">felt · #121110</div><div class="swr">the table</div></div>
+            <div><div class="sw" style="background:var(--ns-ground)"></div><div class="swn">ground · #1A1817</div><div class="swr">app ground</div></div>
+            <div><div class="sw" style="background:var(--ns-raised)"></div><div class="swn">raised · #232120</div><div class="swr">panels, seats</div></div>
+            <div><div class="sw" style="background:var(--ns-line)"></div><div class="swn">line · #35312F</div><div class="swr">hairlines</div></div>
+            <div><div class="sw" style="background:var(--ns-text)"></div><div class="swn">text · #EDE9E4</div><div class="swr">warm off-white, never #fff</div></div>
+            <div><div class="sw" style="background:var(--ns-muted)"></div><div class="swn">muted · #857E78</div><div class="swr">labels, meta</div></div>
+          </div>
+          <div class="grid" style="grid-template-columns:repeat(6,1fr);margin-top:20px">
+            <div><div class="sw" style="background:var(--ns-signal);box-shadow:0 0 30px var(--ns-signal-glow)"></div><div class="swn" style="color:var(--ns-signal)">signal · #39D0E8</div><div class="swr">“it is your turn” — and nothing else</div></div>
+            <div><div class="sw" style="background:var(--ns-win)"></div><div class="swn">win · #5FD08A</div><div class="swr">pot won, stack up</div></div>
+            <div><div class="sw" style="background:var(--ns-lose)"></div><div class="swn">lose · #E5484D</div><div class="swr">busted, folded, destructive</div></div>
+            <div><div class="sw" style="background:var(--ns-warn)"></div><div class="swn">warn · #F5A524</div><div class="swr">blinds up, clock running</div></div>
+            <div><div class="sw" style="background:var(--ns-cardface)"></div><div class="swn">cardface · #F7F4EF</div><div class="swr">the one bright surface</div></div>
+            <div><div class="sw" style="background:var(--ns-suit-red)"></div><div class="swn">suit red · #D93A36</div><div class="swr">♥ ♦ on the face only</div></div>
+          </div>
+          <div class="p" style="margin-top:18px">
+            <span class="do">DO</span> let the signal appear once per screen ·
+            <span class="do">DO</span> keep semantic colour separate from the accent, so “your turn” never collides with “you won” ·
+            <span class="dont">DON’T</span> tint the room toward blue ·
+            <span class="dont">DON’T</span> use the signal for branding, headers or decoration — the moment it means two things it means nothing.
+          </div>
+        </div>
+
+        <div class="sect">
+          <div class="lbl">§3 · TYPE — TWO VOICES</div>
+          <div class="row" style="margin-top:16px">
+            <div class="panel" style="flex:1">
+              <div style="font:700 34px/1.1 var(--ns-ui);letter-spacing:-.02em">Instrument Sans</div>
+              <div class="p" style="font-size:14px">Interface and headings. A grotesque with a little warmth in it, so the UI does not read as a spreadsheet. Weights 400 / 500 / 600 / 700.</div>
+            </div>
+            <div class="panel" style="flex:1">
+              <div style="font:500 34px/1.1 var(--ns-figure);font-variant-numeric:tabular-nums">128,400</div>
+              <div class="p" style="font-size:14px">IBM Plex Mono for every figure and label. Tabular by default so a stack counting down does not shift the row it lives in.</div>
+            </div>
+          </div>
+          <table style="margin-top:24px">
+            <tr><th>Role</th><th>Spec</th><th>Where</th></tr>
+            <tr><td>display</td><td><code>700 30px/1.05</code> Instrument Sans, -.01em</td><td>screen titles</td></tr>
+            <tr><td>title</td><td><code>600 20px/1.2</code></td><td>panel and dialog headings</td></tr>
+            <tr><td>body</td><td><code>400 15px/1.55</code></td><td>reading text, dialog copy</td></tr>
+            <tr><td>label</td><td><code>500 11px</code> Plex Mono, uppercase, <code>.12em</code></td><td>every label, meta line, section head</td></tr>
+            <tr><td>figure</td><td><code>500 16px</code> Plex Mono, tabular</td><td>stacks, bets, blinds</td></tr>
+            <tr><td>figure-l</td><td><code>600 28px</code> Plex Mono, tabular</td><td>the pot, the Roll</td></tr>
+          </table>
+          <div class="p">Never size text in pixels outside a card face. A caption frozen in px while the paragraph around it
+            scales is exactly the failure that text-resize accessibility is about.</div>
+        </div>
+
+        <div class="sect">
+          <div class="lbl">§4 · THE TABLE</div>
+          <div class="p">Three objects carry the whole game: the card, the chip, the seat. They are drawn flat. A card is a clean
+            face, not a rendering of a card; a chip is a disc of colour where the colour <i>is</i> the denomination.</div>
+
+          <div class="row" style="margin-top:22px;gap:36px">
+            <div>
+              <div class="lbl">CARDS</div>
+              <div class="row" style="margin-top:10px;gap:8px">
+                <div class="card card--red"><div class="card__r">A</div><div class="card__s">♥</div></div>
+                <div class="card card--red"><div class="card__r">10</div><div class="card__s">♦</div></div>
+                <div class="card"><div class="card__r">Q</div><div class="card__s">♠</div></div>
+                <div class="card card--blue"><div class="card__r">7</div><div class="card__s">♣</div></div>
+                <div class="card card--back"></div>
+              </div>
+              <div class="swr" style="margin-top:8px;max-width:34ch">Rank top-left, suit bottom-right, nothing else. The four-colour deck is a
+                setting, not a default.</div>
+            </div>
+            <div>
+              <div class="lbl">CHIPS</div>
+              <div class="row" style="margin-top:10px;gap:8px">
+                <div class="chip" style="background:var(--ns-chip-1);color:#15130F">1</div>
+                <div class="chip" style="background:var(--ns-chip-5);color:#fff">5</div>
+                <div class="chip" style="background:var(--ns-chip-25);color:#0C1F14">25</div>
+                <div class="chip" style="background:var(--ns-chip-100);color:var(--ns-text)">100</div>
+                <div class="chip" style="background:var(--ns-chip-500);color:#140F2E">500</div>
+                <div class="chip" style="background:var(--ns-chip-1k);color:#241703">1K</div>
+              </div>
+              <div class="swr" style="margin-top:8px;max-width:34ch">A stack overlaps by 10px. The value is always written on the disc as well as
+                coloured, because colour alone is not a label.</div>
+            </div>
+          </div>
+
+          <div class="lbl" style="margin-top:30px">SEATS — AT REST, AND ON THE CLOCK</div>
+          <div class="row" style="margin-top:10px">
+            <div class="seat">
+              <div class="seat__av">MK</div>
+              <div style="flex:1"><div class="seat__n">Mikko</div><div class="seat__s">12,400</div></div>
+              <div class="badge">FOLD</div>
+            </div>
+            <div class="seat seat--turn">
+              <div class="seat__av" style="color:var(--ns-signal)">YOU</div>
+              <div style="flex:1"><div class="seat__n">Guest</div><div class="seat__s">200,000</div></div>
+              <div class="badge badge--turn">YOUR TURN</div>
+            </div>
+            <div class="seat">
+              <div class="seat__av">RJ</div>
+              <div style="flex:1"><div class="seat__n">Reyes</div><div class="seat__s">8,150</div></div>
+              <div class="badge badge--win">+4,200</div>
+            </div>
+          </div>
+          <div class="p">The seat on the clock is the only lit thing on the table. It carries the ring, the glow and the word
+            “your turn” together, so the state survives colour blindness, a dimmed screen and a glance.</div>
+        </div>
+
+        <div class="sect">
+          <div class="lbl">§5 · CONTROLS</div>
+          <div class="row" style="margin-top:16px;align-items:center">
+            <button class="btn btn--act">Call 4,000</button>
+            <button class="btn">Raise to 12,000</button>
+            <button class="btn btn--fold">Fold</button>
+            <button class="btn btn--danger">Leave table</button>
+          </div>
+          <div class="p">One accented control per screen: the action the clock is waiting on. Everything else is a quiet
+            button. Fold is deliberately the least loud thing on the bar — a product that shouts “fold” is
+            steering, and steering is the thing this brand refuses to do.</div>
+          <div class="row" style="margin-top:20px">
+            <span class="badge badge--turn">YOUR TURN</span>
+            <span class="badge badge--win">POT WON</span>
+            <span class="badge badge--warn">BLINDS UP</span>
+            <span class="badge">SITTING OUT</span>
+          </div>
+          <table style="margin-top:26px">
+            <tr><th>Component</th><th>Rule it must not break</th></tr>
+            <tr><td>Button</td><td>44px effective target, visible focus ring in the signal colour, label says what happens (“Call 4,000”, not “OK”)</td></tr>
+            <tr><td>ActionBar</td><td>exactly one accented action; the amount is always in the label; disabled states are dimmed, never hidden</td></tr>
+            <tr><td>Seat</td><td>the on-the-clock state is ring + glow + text together, never colour alone</td></tr>
+            <tr><td>ChipStack</td><td>value written on the disc; a stack is discs, never a bar chart</td></tr>
+            <tr><td>PlayingCard</td><td>face is the only bright surface; rank readable at 62px wide and at half that</td></tr>
+            <tr><td>PotDisplay</td><td>figure-l, tabular, animates by counting, never by scaling or bouncing</td></tr>
+            <tr><td>RollBadge</td><td>always visible, never celebratory, no upward-arrow flourish on a win</td></tr>
+            <tr><td>Dialog</td><td>traps focus, closes on Escape, returns focus to what opened it</td></tr>
+          </table>
+        </div>
+
+        <div class="sect">
+          <div class="lbl">§6 · MOTION AND ACCESS</div>
+          <div class="row" style="margin-top:14px">
+            <div class="panel" style="flex:1">
+              <div class="h" style="font-size:16px">Two durations, one curve</div>
+              <div class="p" style="font-size:14px"><code>180ms</code> when a thing changes state. <code>320ms</code> when something
+                travels: a card dealt, chips to the pot. Curve <code>cubic-bezier(.2,.7,.3,1)</code>. Nothing loops, nothing pulses,
+                nothing glows to attract. Under reduced motion both collapse to an instant re-set.</div>
+            </div>
+            <div class="panel" style="flex:1">
+              <div class="h" style="font-size:16px">The floor</div>
+              <div class="p" style="font-size:14px">44px targets. Focus visible on every control. Body text and figures at or above
+                4.5:1 on their own ground, labels above 3:1 and never load-bearing alone. Anything said with colour is also said with a
+                word. The table is operable from the keyboard end to end.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sect">
+          <div class="lbl">§7 · WHAT THIS SYSTEM REFUSES</div>
+          <div class="p" style="max-width:70ch">
+            Green felt, wood grain, gold anything, drop-shadowed 3D chips, card-flip skeuomorphism, coin-shower
+            wins, countdown urgency that is not a real clock, “nearly!” messaging on a lost hand, and any use of
+            the signal colour that is not the clock waiting on you. Each of these is easy, and each one converts
+            the product from a game into a machine for extracting another hand.
+          </div>
+        </div>
+
+      </div>
+    </x-dc>
+  </body>
+</html>

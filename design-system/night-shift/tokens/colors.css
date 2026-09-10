@@ -1,0 +1,68 @@
+/* Night Shift — colour.
+   The room is warm and dark. The signal is cool and singular. That temperature
+   contrast is the design argument, so nothing here may tint the room cool or
+   spend the signal on decoration. */
+:root {
+  /* the room — a warm dark ramp, never pure black */
+  --ns-felt:      #121110;
+  --ns-ground:    #1A1817;
+  --ns-raised:    #232120;
+  --ns-raised-2:  #2C2928;
+  --ns-line:      #35312F;
+  --ns-line-soft: #2A2726;
+
+  /* type on the room */
+  --ns-text:   #EDE9E4;
+  --ns-text-2: #B4ADA6;
+  --ns-muted:  #857E78;
+
+  /* THE SIGNAL — one accent, one meaning: "it is your turn" */
+  --ns-signal:      #39D0E8;
+  --ns-signal-ink:  #0B1B1F;
+  --ns-signal-dim:  #1E5A66;
+  --ns-signal-glow: rgba(57, 208, 232, .16);
+
+  /* semantic state — deliberately NOT the accent */
+  --ns-win:      #5FD08A;
+  --ns-win-ink:  #0C1F14;
+  --ns-lose:     #E5484D;
+  --ns-lose-ink: #240B0C;
+  --ns-warn:     #F5A524;
+  --ns-warn-ink: #241703;
+
+  /* the cards — the one bright surface in the room */
+  --ns-cardface:   #F7F4EF;
+  --ns-card-ink:   #15130F;
+  --ns-suit-red:   #D93A36;
+  --ns-suit-black: #15130F;
+  --ns-suit-blue:  #2F6FD0;
+  --ns-suit-green: #2F8F5B;
+  --ns-card-back:  #1E2A33;
+
+  /* chips — flat discs; colour IS the denomination, and is never the only label */
+  --ns-chip-1:    #EDE9E4;
+  --ns-chip-5:    #D93A36;
+  --ns-chip-25:   #5FD08A;
+  --ns-chip-100:  #2B2827;
+  --ns-chip-500:  #8B7CFF;
+  --ns-chip-1k:   #F5A524;
+  --ns-chip-edge: rgba(0, 0, 0, .38);
+}
+
+/* Day — for daylight and screenshots. Dark is home. The signal keeps its meaning
+   and darkens so it still holds on a light ground. */
+:root[data-theme="day"] {
+  --ns-felt:      #E8E4DE;
+  --ns-ground:    #F4F1EC;
+  --ns-raised:    #FFFFFF;
+  --ns-raised-2:  #F0ECE6;
+  --ns-line:      #D9D3CB;
+  --ns-line-soft: #E6E1DA;
+  --ns-text:      #1A1817;
+  --ns-text-2:    #4C4744;
+  --ns-muted:     #7A736D;
+  --ns-signal:      #0E7C90;
+  --ns-signal-ink:  #F2FBFD;
+  --ns-signal-dim:  #A8DCE6;
+  --ns-signal-glow: rgba(14, 124, 144, .12);
+}

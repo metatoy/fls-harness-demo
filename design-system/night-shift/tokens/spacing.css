@@ -1,0 +1,35 @@
+/* Night Shift — geometry. A 4px base, and one non-negotiable: the tap target. */
+:root {
+  --ns-s-1:  4px;
+  --ns-s-2:  8px;
+  --ns-s-3: 12px;
+  --ns-s-4: 16px;
+  --ns-s-5: 20px;
+  --ns-s-6: 24px;
+  --ns-s-7: 32px;
+  --ns-s-8: 48px;
+
+  --ns-r-xs:   4px;
+  --ns-r-sm:   6px;
+  --ns-r-md:  10px;
+  --ns-r-lg:  14px;
+  --ns-r-xl:  20px;
+  --ns-r-full: 999px;
+
+  /* every actionable control, no exceptions */
+  --ns-tap: 44px;
+
+  --ns-border: 1px;
+  --ns-border-strong: 2px;
+
+  /* the room is dark, so lift with light rather than shadow */
+  --ns-lift-1: inset 0 1px 0 rgba(255, 255, 255, .04);
+  --ns-lift-2: inset 0 1px 0 rgba(255, 255, 255, .06), 0 8px 24px rgba(0, 0, 0, .45);
+  --ns-lift-card: 0 6px 18px rgba(0, 0, 0, .5);
+
+  /* the table's own measurements */
+  --ns-card-w: 62px;
+  --ns-card-h: 88px;
+  --ns-chip:   38px;
+  --ns-chip-overlap: -10px;
+}

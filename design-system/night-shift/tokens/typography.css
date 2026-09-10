@@ -1,0 +1,19 @@
+/* Night Shift — type. Two voices: a grotesque for interface, a mono for every figure.
+   Figures are tabular by default so a stack counting down never shifts its row. */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --ns-ui:     'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  --ns-figure: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --ns-t-display:  700 30px/1.05 var(--ns-ui);
+  --ns-t-title:    600 20px/1.2  var(--ns-ui);
+  --ns-t-body:     400 15px/1.55 var(--ns-ui);
+  --ns-t-small:    400 13px/1.5  var(--ns-ui);
+  --ns-t-label:    500 11px/1.4  var(--ns-figure);
+  --ns-t-figure:   500 16px/1.2  var(--ns-figure);
+  --ns-t-figure-l: 600 28px/1.1  var(--ns-figure);
+
+  --ns-track: .12em;          /* label letter-spacing */
+  --ns-track-tight: -.01em;   /* display letter-spacing */
+}

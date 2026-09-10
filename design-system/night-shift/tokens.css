@@ -1,0 +1,127 @@
+/* ============================================================================
+   NIGHT SHIFT — poker design system (NS-1.0)
+   The room is warm and dark. The signal is cool and singular.
+
+   Most poker products sell a casino: green felt, gold, a room you are lucky to
+   be in. This one is designed for the truth of how it is played — one-handed,
+   in poor light, late. So the ground is a warm dark that is easy to sit in for
+   an hour, and exactly one saturated cool accent means "it is your turn".
+   Nothing else in the system is allowed to use it.
+   ============================================================================ */
+:root {
+  /* --- the room: a warm dark ramp, never pure black -------------------------- */
+  --ns-felt:      #121110;   /* the table surface, the deepest ground */
+  --ns-ground:    #1A1817;   /* app ground */
+  --ns-raised:    #232120;   /* cards, panels, sheets */
+  --ns-raised-2:  #2C2928;   /* a panel on a panel; hover fill */
+  --ns-line:      #35312F;   /* hairlines and borders */
+  --ns-line-soft: #2A2726;   /* dividers inside a panel */
+
+  /* --- type on the room ------------------------------------------------------ */
+  --ns-text:      #EDE9E4;   /* primary, a warm off-white — never #fff */
+  --ns-text-2:    #B4ADA6;   /* secondary */
+  --ns-muted:     #857E78;   /* labels, meta, disabled */
+
+  /* --- THE SIGNAL: one accent, one meaning ----------------------------------- */
+  /* Cool against a warm room, so it cannot be mistaken for the furniture.
+     It means "act now": your turn, the focused control, the live thing.
+     It is never decoration and never a brand flourish. */
+  --ns-signal:      #39D0E8;
+  --ns-signal-ink:  #0B1B1F;  /* type that rides ON the signal */
+  --ns-signal-dim:  #1E5A66;  /* the signal at rest: rings, tracks, borders */
+  --ns-signal-glow: rgba(57, 208, 232, .16);
+
+  /* --- semantic state: separate from the accent, by design ------------------- */
+  --ns-win:      #5FD08A;
+  --ns-win-ink:  #0C1F14;
+  --ns-lose:     #E5484D;
+  --ns-lose-ink: #240B0C;
+  --ns-warn:     #F5A524;   /* blinds up, time running out */
+  --ns-warn-ink: #241703;
+
+  /* --- the cards: the one bright surface in the room ------------------------- */
+  --ns-cardface:     #F7F4EF;
+  --ns-card-ink:     #15130F;
+  --ns-suit-red:     #D93A36;
+  --ns-suit-black:   #15130F;
+  --ns-suit-blue:    #2F6FD0;  /* four-colour deck */
+  --ns-suit-green:   #2F8F5B;
+  --ns-card-back:    #1E2A33;
+
+  /* --- chips: flat discs, colour IS the denomination ------------------------- */
+  --ns-chip-1:    #EDE9E4;
+  --ns-chip-5:    #D93A36;
+  --ns-chip-25:   #5FD08A;
+  --ns-chip-100:  #2B2827;
+  --ns-chip-500:  #8B7CFF;
+  --ns-chip-1k:   #F5A524;
+  --ns-chip-edge: rgba(0, 0, 0, .38);   /* the rim, so a disc reads on any ground */
+
+  /* --- type ------------------------------------------------------------------ */
+  --ns-ui:     'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  --ns-figure: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --ns-t-display: 700 30px/1.05 var(--ns-ui);
+  --ns-t-title:   600 20px/1.2 var(--ns-ui);
+  --ns-t-body:    400 15px/1.55 var(--ns-ui);
+  --ns-t-small:   400 13px/1.5 var(--ns-ui);
+  --ns-t-label:   500 11px/1.4 var(--ns-figure);   /* uppercase, tracked */
+  --ns-t-figure:  500 16px/1.2 var(--ns-figure);   /* stacks, pot, the Roll */
+  --ns-t-figure-l:600 28px/1.1 var(--ns-figure);
+  --ns-track:     .12em;                            /* label letter-spacing */
+
+  /* --- geometry -------------------------------------------------------------- */
+  --ns-r-xs:   4px;
+  --ns-r-sm:   6px;
+  --ns-r-md:  10px;
+  --ns-r-lg:  14px;
+  --ns-r-xl:  20px;
+  --ns-r-full: 999px;
+
+  --ns-s-1:  4px;
+  --ns-s-2:  8px;
+  --ns-s-3: 12px;
+  --ns-s-4: 16px;
+  --ns-s-5: 20px;
+  --ns-s-6: 24px;
+  --ns-s-7: 32px;
+  --ns-s-8: 48px;
+
+  --ns-tap: 44px;             /* every actionable control, no exceptions */
+
+  /* --- elevation: the room is dark, so lift with light, not shadow ----------- */
+  --ns-lift-1: inset 0 1px 0 rgba(255, 255, 255, .04);
+  --ns-lift-2: inset 0 1px 0 rgba(255, 255, 255, .06), 0 8px 24px rgba(0, 0, 0, .45);
+  --ns-lift-card: 0 6px 18px rgba(0, 0, 0, .5);
+
+  /* --- motion: it reports state, it never performs --------------------------- */
+  --ns-m-state: 180ms;        /* a thing changed */
+  --ns-m-move:  320ms;        /* chips travelling, a card dealt */
+  --ns-m-ease:  cubic-bezier(.2, .7, .3, 1);
+}
+
+/* A light room exists for daylight and for screenshots, but dark is home.
+   The signal keeps its meaning and gets darker so it holds on a light ground. */
+:root[data-theme="day"] {
+  --ns-felt:      #E8E4DE;
+  --ns-ground:    #F4F1EC;
+  --ns-raised:    #FFFFFF;
+  --ns-raised-2:  #F0ECE6;
+  --ns-line:      #D9D3CB;
+  --ns-line-soft: #E6E1DA;
+  --ns-text:      #1A1817;
+  --ns-text-2:    #4C4744;
+  --ns-muted:     #7A736D;
+  --ns-signal:      #0E7C90;
+  --ns-signal-ink:  #F2FBFD;
+  --ns-signal-dim:  #A8DCE6;
+  --ns-signal-glow: rgba(14, 124, 144, .12);
+  --ns-chip-100:  #2B2827;
+  --ns-lift-1: inset 0 1px 0 rgba(255, 255, 255, .8);
+  --ns-lift-2: 0 8px 24px rgba(0, 0, 0, .12);
+  --ns-lift-card: 0 6px 18px rgba(0, 0, 0, .14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --ns-m-state: 1ms; --ns-m-move: 1ms; }
+}

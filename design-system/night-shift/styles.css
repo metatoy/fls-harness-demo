@@ -1,0 +1,171 @@
+/* Night Shift — the only stylesheet: the token layer, the base, then the component layer.
+   Link this from every page. Take every colour, font, space, radius and duration from a
+   var(--ns-*); a raw hex or pixel value the tokens already carry is a bug. */
+@import './tokens/typography.css';
+@import './tokens/colors.css';
+@import './tokens/spacing.css';
+@import './tokens/motion.css';
+
+/* ---------------------------------------------------------------- base ---- */
+
+html { color-scheme: dark; }
+
+body {
+  margin: 0;
+  background: var(--ns-felt);
+  color: var(--ns-text);
+  font: var(--ns-t-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--ns-signal); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { color: #4ADAF0; }
+
+::selection { background: var(--ns-signal-glow); }
+
+/* One focus treatment across the system, always visible, always the signal colour. */
+:where(a, button, [role="button"], input, select, textarea, [tabindex]):focus-visible {
+  outline: var(--ns-border-strong) solid var(--ns-signal);
+  outline-offset: 2px;
+}
+
+.ns-rule { border: 0; border-top: var(--ns-border) solid var(--ns-line); }
+
+/* Figures line up wherever they appear. */
+.ns-figure   { font: var(--ns-t-figure);   font-variant-numeric: tabular-nums; }
+.ns-figure-l { font: var(--ns-t-figure-l); font-variant-numeric: tabular-nums; }
+
+.ns-label {
+  font: var(--ns-t-label);
+  letter-spacing: var(--ns-track);
+  text-transform: uppercase;
+  color: var(--ns-muted);
+}
+
+/* ----------------------------------------------------------- components ---- */
+/* The component layer. `_ds_bundle.js` renders exactly these class names, and the .jsx
+   sources under components/ are the readable form of the same behaviour. */
+
+/* Button — at most ONE .ns-btn--act per screen: the thing the clock is waiting on. */
+.ns-btn {
+  font: 500 14px var(--ns-ui);
+  min-height: var(--ns-tap);
+  padding: 0 18px;
+  border-radius: var(--ns-r-sm);
+  border: var(--ns-border) solid var(--ns-line);
+  background: var(--ns-raised-2);
+  color: var(--ns-text);
+  cursor: pointer;
+  transition: background var(--ns-m-state) var(--ns-m-ease),
+              transform var(--ns-m-state) var(--ns-m-ease);
+}
+.ns-btn:hover:not(:disabled)  { background: #383433; }
+.ns-btn:active:not(:disabled) { transform: scale(.985); }
+.ns-btn:disabled { opacity: .45; cursor: not-allowed; }
+.ns-btn--act {
+  background: var(--ns-signal);
+  border-color: var(--ns-signal);
+  color: var(--ns-signal-ink);
+  font-weight: 600;
+}
+.ns-btn--act:hover:not(:disabled) { background: #4ADAF0; }
+.ns-btn--fold { background: transparent; color: var(--ns-text-2); }
+.ns-btn--fold:hover:not(:disabled) { background: var(--ns-raised); }
+.ns-btn--danger { background: transparent; border-color: #5A2325; color: var(--ns-lose); }
+
+/* Badge — state said in a word. Only --turn may wear the signal. */
+.ns-badge {
+  display: inline-block;
+  font: var(--ns-t-label);
+  letter-spacing: var(--ns-track);
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: var(--ns-r-full);
+  border: var(--ns-border) solid var(--ns-line);
+  color: var(--ns-text-2);
+  white-space: nowrap;
+}
+.ns-badge--turn { background: var(--ns-signal-glow); border-color: var(--ns-signal-dim); color: var(--ns-signal); }
+.ns-badge--win  { background: rgba(95, 208, 138, .14); border-color: #2C5C41; color: var(--ns-win); }
+.ns-badge--lose { background: rgba(229, 72, 77, .14);  border-color: #5A2325; color: var(--ns-lose); }
+.ns-badge--warn { background: rgba(245, 165, 36, .14); border-color: #5C441A; color: var(--ns-warn); }
+
+/* PlayingCard — the one bright surface in the room. */
+.ns-card {
+  width: var(--ns-card-w);
+  height: var(--ns-card-h);
+  border-radius: var(--ns-r-sm);
+  background: var(--ns-cardface);
+  box-shadow: var(--ns-lift-card);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 7px 8px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+.ns-card__r { font: 600 19px/1 var(--ns-ui); }
+.ns-card__s { font: 16px/1 var(--ns-ui); text-align: right; }
+.ns-card--back {
+  background: var(--ns-card-back);
+  background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, .045) 0 6px, transparent 6px 12px);
+}
+
+/* ChipStack — flat discs; the value is printed as well as coloured. */
+.ns-stack { display: inline-flex; align-items: center; }
+.ns-chip {
+  width: var(--ns-chip);
+  height: var(--ns-chip);
+  border-radius: var(--ns-r-full);
+  display: grid;
+  place-items: center;
+  font: 600 11px var(--ns-figure);
+  box-shadow: 0 0 0 3px var(--ns-chip-edge) inset, 0 2px 6px rgba(0, 0, 0, .4);
+  flex-shrink: 0;
+}
+
+/* Seat — on the clock it is the only lit thing on the table: ring, glow and words together. */
+.ns-seat {
+  display: flex;
+  gap: var(--ns-s-3);
+  align-items: center;
+  background: var(--ns-raised);
+  border: var(--ns-border) solid var(--ns-line);
+  border-radius: var(--ns-r-md);
+  padding: 10px 14px;
+  min-width: 224px;
+  transition: border-color var(--ns-m-state) var(--ns-m-ease),
+              box-shadow var(--ns-m-state) var(--ns-m-ease);
+}
+.ns-seat--turn {
+  border-color: var(--ns-signal-dim);
+  box-shadow: 0 0 0 1px var(--ns-signal-dim), 0 0 24px var(--ns-signal-glow);
+}
+.ns-seat__av {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--ns-r-full);
+  background: var(--ns-raised-2);
+  display: grid;
+  place-items: center;
+  font: 600 13px var(--ns-ui);
+  color: var(--ns-text-2);
+  flex-shrink: 0;
+}
+.ns-seat__body { flex: 1; min-width: 0; }
+.ns-seat__n { font: 500 14px var(--ns-ui); }
+.ns-seat__s { font: var(--ns-t-figure); font-variant-numeric: tabular-nums; color: var(--ns-text-2); }
+
+/* PotDisplay — it counts, it never performs. */
+.ns-pot { text-align: center; }
+.ns-pot__chips { margin-top: var(--ns-s-2); }
+
+/* Figure */
+.ns-fig__label { font: var(--ns-t-label); letter-spacing: var(--ns-track); text-transform: uppercase; color: var(--ns-muted); }
+.ns-fig__v { font: var(--ns-t-figure); font-variant-numeric: tabular-nums; color: var(--ns-text); margin-top: 4px; }
+.ns-fig__v--lg   { font: var(--ns-t-figure-l); font-variant-numeric: tabular-nums; }
+.ns-fig__v--win  { color: var(--ns-win); }
+.ns-fig__v--lose { color: var(--ns-lose); }
+
+/* ActionBar */
+.ns-actions { display: flex; gap: var(--ns-s-3); flex-wrap: wrap; align-items: center; }

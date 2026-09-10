@@ -1,0 +1,54 @@
+{
+  "name": "Night Shift",
+  "version": "1.0",
+  "namespace": "NightShift_7b8dc7",
+  "premise": "Poker is played one-handed, in poor light, late. The room is a warm dark you can sit in for an hour; exactly one cool accent means it is your turn.",
+  "defaultTheme": "night",
+  "themes": [
+    { "id": "night", "label": "Night", "selector": ":root" },
+    { "id": "day", "label": "Day", "selector": "[data-theme=\"day\"]" }
+  ],
+  "color": {
+    "strategy": "warm-dark-room-cool-signal",
+    "room": { "felt": "#121110", "ground": "#1A1817", "raised": "#232120", "raised2": "#2C2928", "line": "#35312F", "lineSoft": "#2A2726" },
+    "text": { "primary": "#EDE9E4", "secondary": "#B4ADA6", "muted": "#857E78" },
+    "signal": { "base": "#39D0E8", "ink": "#0B1B1F", "dim": "#1E5A66", "glow": "rgba(57,208,232,.16)", "meaning": "the clock is waiting on you — reserved, never decorative" },
+    "semantic": { "win": "#5FD08A", "lose": "#E5484D", "warn": "#F5A524" },
+    "cards": { "face": "#F7F4EF", "ink": "#15130F", "back": "#1E2A33", "suitRed": "#D93A36", "suitBlack": "#15130F", "suitBlue": "#2F6FD0", "suitGreen": "#2F8F5B" },
+    "chips": { "1": "#EDE9E4", "5": "#D93A36", "25": "#5FD08A", "100": "#2B2827", "500": "#8B7CFF", "1000": "#F5A524" }
+  },
+  "type": {
+    "ui": { "family": "Instrument Sans", "weights": [400, 500, 600, 700], "source": "Google Fonts" },
+    "figure": { "family": "IBM Plex Mono", "weights": [400, 500, 600], "source": "Google Fonts", "note": "tabular by default" },
+    "scale": {
+      "display": "700 30px/1.05",
+      "title": "600 20px/1.2",
+      "body": "400 15px/1.55",
+      "small": "400 13px/1.5",
+      "label": "500 11px/1.4 mono, uppercase, .12em",
+      "figure": "500 16px/1.2 mono",
+      "figureLarge": "600 28px/1.1 mono"
+    }
+  },
+  "space": { "base": 4, "scale": [4, 8, 12, 16, 20, 24, 32, 48], "tapTarget": 44 },
+  "radius": { "xs": 4, "sm": 6, "md": 10, "lg": 14, "xl": 20, "full": 999 },
+  "motion": { "state": "180ms", "move": "320ms", "ease": "cubic-bezier(.2,.7,.3,1)", "reducedMotion": "collapse to 1ms; never remove the state change" },
+  "table": { "cardWidth": 62, "cardHeight": 88, "chipSize": 38, "chipOverlap": -10 },
+  "accessibility": {
+    "contrast": { "text": 4.5, "labels": 3.0 },
+    "rules": [
+      "every actionable control is at least 44px effective",
+      "focus is always visible, in the signal colour",
+      "anything said with colour is also said with a word",
+      "the table is operable from the keyboard end to end"
+    ]
+  },
+  "refuses": [
+    "green felt, wood grain, gold",
+    "3D chips and card-flip skeuomorphism",
+    "coin-shower wins and celebrations that outlast the information",
+    "countdown urgency that is not a real clock",
+    "near-miss framing on a lost hand",
+    "the signal colour used for anything but the clock waiting on you"
+  ]
+}
