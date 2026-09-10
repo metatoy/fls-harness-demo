@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+/* Night Shift’s token layer, generated from design-system/night-shift by
+   design-system/build-pack.mjs. Definitions only — nothing consumes --ns-* yet, so importing it
+   changes no pixel. It is here so the properties exist at first paint for anything the fidelity
+   ladder builds from the design system, and so a Sorb preview has values to replace. */
+@import "../../design-system/tokens.app.css";
 
 @custom-variant dark (&:is(.dark *));
 

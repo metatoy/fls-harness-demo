@@ -27,9 +27,11 @@ claude
 › /design-sync
 ```
 
-The first time, `/design-sync` asks whether to create a new design-system project or update an
-existing one. Choose **create new** and give it the name; it creates a project of the design-system
-type and uploads this folder. Every later run diffs the folder against the project and pushes only
+`/design-sync` asks whether to create a new design-system project or update an existing one.
+This folder is already published: choose **update existing** and pick **Night Shift**
+(`https://claude.ai/design/p/65396e49-13f8-49dc-804d-d22d0165635c`, published 2026-09-10). Only
+choose "create new" when you are standing up a different system from a folder of your own; that
+creates a project of the design-system type and uploads the folder. Every later run diffs the folder against the project and pushes only
 what changed, one component at a time, never a wholesale replace. It shows you the exact list of
 paths it will write before it writes anything.
 
@@ -73,7 +75,7 @@ open.
    lives inside the demo app's repository, as a subfolder, because the app and the system evolve
    together and one pull request should be able to change both. The sync does not care which; it
    runs from the folder either way.
-3. Run the three commands. Answer "create new" the first time.
+3. Run the three commands. Answer "create new" the first time; "update existing" after that.
 4. Bind it: in any Claude Design project, choose this system as the project's design system. Its
    files are copied into that project under `_ds/`, and the guide and skill are loaded for Claude.
 

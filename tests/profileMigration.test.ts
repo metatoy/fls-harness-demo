@@ -10,6 +10,7 @@ import test from 'ava'
 import { migrateProfile, PERSIST_VERSION } from '@/store/profile'
 import { currentChallenge } from '@/lib/challenge'
 import { DEFAULT_CARD_BACK } from '@/config/cardBacks'
+import { STARTING_ROLL } from '@/config/venues'
 
 /** A v11 profile: everything before challengers, nothing after. */
 const v11 = () => ({
@@ -159,7 +160,10 @@ test('an ancient profile survives the whole chain', (t) => {
   const p = migrateProfile(ancient, 1)
 
   t.is(p.cardBack, DEFAULT_CARD_BACK.id)
-  t.is(p.peakRoll, 800)
+  // v2 → v3 seeds peakRoll as max(their roll, STARTING_ROLL), so this tracks the constant rather
+  // than the literal it used to equal. The harness demo seats visitors with a 200,000 Roll, and a
+  // test that hardcodes the old figure fails on the economy rather than on the migration.
+  t.is(p.peakRoll, Math.max(800, STARTING_ROLL))
   t.deepEqual(p.awards, {})
   t.deepEqual(p.castRecords, {})
   t.deepEqual(p.challengeWins, [])

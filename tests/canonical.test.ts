@@ -68,7 +68,9 @@ test('declaring a canonical does not drop the RSS link', async (t) => {
 // a new indexable route is one somebody will paste somewhere, and the version
 // of this that named /blog and /learn would have let it ship without a card.
 const SITE_CARD_ROUTES = new Set([
-  '', // the home page — the root layout's card is the home page's card
+  // Harness demo: '' is absent because "/" redirects to /game/rail in this fork, so there is no
+  // home page module to declare anything. Upstream this set opens with
+  // `'', // the home page — the root layout's card is the home page's card`.
   '/privacy',
   '/terms',
 ])

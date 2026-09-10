@@ -13,7 +13,13 @@
       "!pnpm-lock.yaml",
       "!next-env.d.ts",
       "!agents",
-      "!design"
+      "!design",
+      "!design-system/night-shift",
+      "!design-system/pack.json",
+      "!design-system/tokens.dtcg.json",
+      "!design-system/tokens.night.json",
+      "!design-system/tokens.day.json",
+      "!design-system/tokens.app.css"
     ]
   },
   "formatter": {

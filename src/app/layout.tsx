@@ -4,6 +4,7 @@ import './globals.css'
 import { THEME_BOOT_SCRIPT, ThemeProvider } from '@/components/theme-provider'
 import { TEXT_SCALE_BOOT_SCRIPT, TextScaleProvider } from '@/components/text-scale-provider'
 import { AppBoot } from '@/components/AppBoot'
+import { SorbTokens } from '@/components/SorbTokens'
 import { SyncConflictDialog } from '@/components/settings/SyncConflictDialog'
 import { UpdatePrompt } from '@/components/UpdatePrompt'
 
@@ -87,9 +88,11 @@ export default function RootLayout({
             paint, or every rem in the app reflows after hydration. */}
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, self-authored boot script */}
         <script dangerouslySetInnerHTML={{ __html: TEXT_SCALE_BOOT_SCRIPT }} />
-        <ThemeProvider>
-          <TextScaleProvider>{children}</TextScaleProvider>
-        </ThemeProvider>
+        <SorbTokens>
+          <ThemeProvider>
+            <TextScaleProvider>{children}</TextScaleProvider>
+          </ThemeProvider>
+        </SorbTokens>
         <AppBoot />
         <SyncConflictDialog />
         <UpdatePrompt />

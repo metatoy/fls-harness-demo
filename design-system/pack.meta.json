@@ -1,0 +1,202 @@
+{
+  "_comment": "The editorial half of the design pack. build-pack.mjs merges this with the tokens it parses out of night-shift/tokens/*.css to produce pack.json. Everything here is a judgement a parser cannot make: what a colour MEANS, what a component is FOR, and what a builder must not do. Everything derivable from the source stays out of this file so it cannot drift.",
+
+  "id": "NS-1.0",
+  "name": "Night Shift",
+  "source_dir": "night-shift",
+
+  "premise": "Most poker products sell a casino: green felt, gold, a room you are lucky to be in. This one is designed for the truth of how the game is played, which is one-handed, in poor light, late. The room is a warm dark you can sit in for an hour, and exactly one saturated cool accent means it is your turn.",
+
+  "north_stars": [
+    "The table is the product. Everything that is not cards, chips or people is overhead.",
+    "Money is information, not spectacle. Figures line up, never jitter, never celebrate at you.",
+    "It is play money and it says so. No near-miss theatre, no manufactured urgency.",
+    "Legible one-handed, in the dark. Contrast and target size are structural, not audited later.",
+    "Motion reports state. A screenshot of the table looks identical to the table at rest."
+  ],
+
+  "roles": {
+    "ns-felt": "the deepest ground, the table itself; never pure black",
+    "ns-ground": "the page ground behind panels",
+    "ns-raised": "a panel lifted off the ground: a seat, a card of content",
+    "ns-raised-2": "a control resting on a panel; the quiet button ground",
+    "ns-line": "hairlines and control borders",
+    "ns-line-soft": "a divider inside a panel, quieter than ns-line",
+
+    "ns-text": "primary type",
+    "ns-text-2": "secondary type: stacks, supporting lines",
+    "ns-muted": "labels, meta, anything that must not compete",
+
+    "ns-signal": "THE SIGNAL. It means the clock is waiting on you, and nothing else. Never a brand, header or highlight colour.",
+    "ns-signal-ink": "type placed on the signal",
+    "ns-signal-dim": "the signal at rest: a ring or border that is not the lit state",
+    "ns-signal-glow": "the wash behind a seat on the clock",
+
+    "ns-win": "a hand won; a figure that went up",
+    "ns-win-ink": "type on a win ground",
+    "ns-lose": "a hand lost; a destructive control",
+    "ns-lose-ink": "type on a lose ground",
+    "ns-warn": "a real warning, never manufactured urgency",
+    "ns-warn-ink": "type on a warn ground",
+
+    "ns-cardface": "the one bright surface in the room: the face of a playing card",
+    "ns-card-ink": "type on a card face",
+    "ns-suit-red": "hearts, and diamonds in a two-colour deck",
+    "ns-suit-black": "spades, and clubs in a two-colour deck",
+    "ns-suit-blue": "diamonds in a four-colour deck",
+    "ns-suit-green": "clubs in a four-colour deck",
+    "ns-card-back": "the back of a face-down card",
+
+    "ns-chip-1": "the 1 denomination",
+    "ns-chip-5": "the 5 denomination",
+    "ns-chip-25": "the 25 denomination",
+    "ns-chip-100": "the 100 denomination",
+    "ns-chip-500": "the 500 denomination",
+    "ns-chip-1k": "the 1,000 denomination",
+    "ns-chip-edge": "the inset ring that reads as a chip's milled edge"
+  },
+
+  "group_notes": {
+    "type": "Two voices: a grotesque for interface, a mono for every figure. Figures are tabular by default so a stack counting down never shifts its row.",
+    "space": "A 4px base. ns-tap is the one non-negotiable: every actionable control is at least 44px effective.",
+    "radius": "Five steps plus full. Cards and chips take the geometry the table needs, not the geometry a card component wants.",
+    "elevation": "The room is dark, so surfaces lift with light rather than shadow. Only a playing card casts a real shadow.",
+    "table": "The table's own measurements. A card is 62x88 and a chip is 38, so a stack of six overlaps into a readable object.",
+    "motion": "Two durations and one curve. Nothing loops, nothing pulses, nothing glows to attract. Under prefers-reduced-motion both durations collapse to 1ms and the state change still happens."
+  },
+
+  "components": [
+    {
+      "name": "Button",
+      "file": "components/core/Button.jsx",
+      "class": "ns-btn",
+      "role": "the vocabulary of action",
+      "props": { "variant": ["quiet", "act", "fold", "danger"] },
+      "variant_classes": {
+        "act": "ns-btn--act",
+        "fold": "ns-btn--fold",
+        "danger": "ns-btn--danger"
+      },
+      "usage": "At most ONE variant=act per screen: the thing the clock is waiting on. fold is deliberately the least loud control on a bar, because a product that shouts fold is steering the player. The label always says what happens including the amount: 'Call 4,000', never 'OK'.",
+      "a11y": "min-height is ns-tap. Focus is the system-wide signal outline."
+    },
+    {
+      "name": "Badge",
+      "file": "components/core/Badge.jsx",
+      "class": "ns-badge",
+      "role": "state, said in a word",
+      "props": { "tone": ["neutral", "turn", "win", "lose", "warn"] },
+      "variant_classes": {
+        "turn": "ns-badge--turn",
+        "win": "ns-badge--win",
+        "lose": "ns-badge--lose",
+        "warn": "ns-badge--warn"
+      },
+      "usage": "Only tone=turn may wear the signal colour. A badge always carries the word as well as the colour, which is what makes it the fix for anything otherwise said in colour alone."
+    },
+    {
+      "name": "Figure",
+      "file": "components/core/Figure.jsx",
+      "class": "ns-fig",
+      "role": "a number a player reads under time pressure",
+      "props": {
+        "size": ["md", "lg"],
+        "tone": ["default", "win", "lose"],
+        "label": "string",
+        "value": "number"
+      },
+      "usage": "Every figure in the product goes through this or the ns-figure class. Tabular mono, so a counting stack never shifts the row around it."
+    },
+    {
+      "name": "PlayingCard",
+      "file": "components/table/PlayingCard.jsx",
+      "class": "ns-card",
+      "role": "the one bright surface in the room",
+      "props": {
+        "rank": "string",
+        "suit": ["s", "h", "d", "c"],
+        "faceDown": "boolean",
+        "fourColour": "boolean"
+      },
+      "variant_classes": { "faceDown": "ns-card--back" },
+      "usage": "Flat, with one real shadow because it is the only object that sits above the table. No flip skeuomorphism. The four-colour deck is a setting, not a default."
+    },
+    {
+      "name": "ChipStack",
+      "file": "components/table/ChipStack.jsx",
+      "class": "ns-stack",
+      "role": "a bet, as objects",
+      "props": { "amount": "number", "max": "number (default 6)" },
+      "exports": ["DENOMS", "toChips"],
+      "usage": "Flat overlapping discs, never a bar chart and never a 3D render. The value is printed on every disc as well as coloured, because colour alone is not a label. The whole stack carries the amount as its accessible name."
+    },
+    {
+      "name": "Seat",
+      "file": "components/table/Seat.jsx",
+      "class": "ns-seat",
+      "role": "a player at the table",
+      "props": {
+        "name": "string",
+        "stack": "number",
+        "onClock": "boolean",
+        "status": "string",
+        "statusTone": ["neutral", "win", "lose", "warn"],
+        "isYou": "boolean"
+      },
+      "variant_classes": { "onClock": "ns-seat--turn" },
+      "usage": "When the clock is on this seat it is the only lit thing on the table, and the state is carried three ways at once: a ring, a glow, and the words 'your turn'. Never the ring alone."
+    },
+    {
+      "name": "PotDisplay",
+      "file": "components/table/PotDisplay.jsx",
+      "class": "ns-pot",
+      "role": "the pot; it counts, it never performs",
+      "props": { "amount": "number", "showChips": "boolean" },
+      "usage": "The figure counts up over ns-m-move and stops. No coin shower, no celebration that outlasts the information. Under prefers-reduced-motion it sets the final value directly."
+    },
+    {
+      "name": "ActionBar",
+      "file": "components/table/ActionBar.jsx",
+      "class": "ns-actions",
+      "role": "the three things a player can do",
+      "props": {
+        "toCall": "number",
+        "canCheck": "boolean",
+        "minRaise": "number",
+        "disabled": "boolean",
+        "onFold": "handler",
+        "onCheckCall": "handler",
+        "onRaise": "handler"
+      },
+      "usage": "Fold, check-or-call, raise. The call button is the single accented control and its label carries the amount."
+    }
+  ],
+
+  "rules": [
+    "ns-signal means the clock is waiting on you. It is never a brand colour, a header colour or a highlight. The moment it means two things it means nothing.",
+    "Win, loss and warning have their own semantic colours precisely so the signal never has to share duty.",
+    "At most one accented action per screen.",
+    "Anything said with colour is also said with a word.",
+    "Every value in a stylesheet is a var(--ns-*). A raw hex or pixel value the token layer already carries is a bug; if the layer is missing something, add it there.",
+    "Every actionable control is at least 44px effective, and focus is always visible in the signal colour.",
+    "Figures are tabular mono and never jitter. A screenshot at rest looks identical to the table at rest.",
+    "Honour prefers-reduced-motion: durations collapse, the state change still happens.",
+    "The room is warm and dark, never pure black; the signal is the only cool thing in it."
+  ],
+
+  "refuses": [
+    "green felt, wood grain, gold",
+    "3D chips and card-flip skeuomorphism",
+    "coin-shower wins and celebrations that outlast the information",
+    "countdown urgency that is not a real clock",
+    "near-miss framing on a lost hand",
+    "the signal colour used for anything but the clock waiting on you"
+  ],
+
+  "voice": {
+    "tone": "Plain and exact. It states what happened and what it costs. It never congratulates the player on losing.",
+    "labels": "Uppercase mono for labels and counts; sentence case for titles and body.",
+    "numbers": "Monospace with tabular alignment wherever digits line up. Amounts are grouped: 200,000, never 200000.",
+    "money": "Play money, stated plainly. Chips, never a currency symbol."
+  }
+}

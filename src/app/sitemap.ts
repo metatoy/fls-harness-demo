@@ -15,7 +15,9 @@ const BASE = SITE_URL
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const pages: MetadataRoute.Sitemap = [
-    '',
+    // Harness demo: '' is absent because "/" redirects to /game/rail in this fork. A redirect is
+    // not a page, and asking a crawler to index one is how a site ends up with the destination
+    // indexed under the wrong address. Upstream, "/" is the marketing landing page and belongs here.
     '/learn',
     '/play-poker-free-no-signup',
     '/poker-odds-calculator',

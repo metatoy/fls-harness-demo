@@ -30,6 +30,12 @@ echo ""
 echo "✅ AVA tests passed"
 echo ""
 
+echo "🎨 Checking the design pack is in step with the design system..."
+pnpm test:design-system
+echo ""
+echo "✅ Design pack check passed"
+echo ""
+
 echo "🗑️  Checking for unused code..."
 pnpm test:knip
 echo ""

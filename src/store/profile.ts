@@ -179,7 +179,13 @@ export interface ProfileState {
    */
   escrow: Escrow | null
 
-  createProfile: (name: string, avatar: AvatarSpec) => void
+  /**
+   * `avatar` is nullable because this fork mints the profile in AppBoot rather than through
+   * onboarding, and a visitor who never saw the avatar creator has not chosen one. The stored
+   * field has always been `AvatarSpec | null`; only this parameter was narrower than the state it
+   * writes into.
+   */
+  createProfile: (name: string, avatar: AvatarSpec | null) => void
   setName: (name: string) => void
   setAvatar: (avatar: AvatarSpec) => void
   setCardBack: (cardBack: string) => void

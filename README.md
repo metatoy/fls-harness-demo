@@ -1,3 +1,24 @@
+> ### This is a fork, and it is not Pip.
+>
+> **`fls-harness-demo` is a modified copy of [`playpip/pip-web`](https://github.com/playpip/pip-web)**
+> (MIT, © Will Lamerton — see [LICENSE](LICENSE)), used as the **vessel** for a build-pipeline
+> demonstration. It is not affiliated with Pip or playpip.io, and nothing here is deployed there.
+>
+> The pipeline is the [Fidelity Ladder System](https://github.com/nhunsaker/fidelity-ladder-system)
+> harness: a human-gated ladder that turns a request into Figma wireframes, then a prototype, then a
+> real pull request against this repository. This app exists so that what the ladder builds is
+> visible in something real rather than a toy.
+>
+> **What this fork changes:** `/` opens straight onto the Rail instead of the marketing page; a
+> visitor is seated automatically with a 200,000 chip Roll and no onboarding; and
+> [`design-system/`](design-system/) carries **Night Shift**, a bespoke poker design system built
+> for this demo, plus the generated token pack the ladder's builders read.
+>
+> Everything below this line is upstream's README, describing the app itself. For the fork's own
+> documentation start at [`design-system/README.md`](design-system/README.md).
+
+---
+
 <p align="center">
   <img src="docs/assets/pip-logo.png" width="72" alt="pip logo" />
 </p>

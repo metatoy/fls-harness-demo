@@ -1,0 +1,7 @@
+{
+  "_comment": "Sorb bridge config — `sorb dev` reads this. The token source is the generated DTCG file, not a Style Dictionary build: design-system/build-pack.mjs derives it from night-shift/tokens/*.css, so there is one generator and no second toolchain to keep in step.",
+  "namespace": "night-shift",
+  "tokenSources": ["design-system/tokens.dtcg.json"],
+  "port": 7777,
+  "appUrl": "http://localhost:3000"
+}

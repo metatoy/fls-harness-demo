@@ -1,7 +1,14 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": ["functions/**/*.ts"],
-  "ignore": ["public/**", "src/components/ui/**", "src/types/supabase-types.ts"],
+  "ignore": [
+    "public/**",
+    "src/components/ui/**",
+    "src/types/supabase-types.ts",
+    "design-system/night-shift/**",
+    "src/components/marketing/**"
+  ],
   "ignoreExportsUsedInFile": true,
-  "ignoreBinaries": ["supabase"]
+  "ignoreBinaries": ["supabase"],
+  "ignoreDependencies": ["react-icons"]
 }
