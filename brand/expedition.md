@@ -1,6 +1,8 @@
-# Expedition — pip, the next turn of the crank
+# Expedition — Pocket, the next turn of the crank
 
-**Product:** pip — single-player Texas Hold'em, play money, no account, open source.
+**Product:** Pocket — single-player Texas Hold'em, play money, no account.
+**Working copy:** a fork of the unaffiliated [pip](https://github.com/playpip/pip-web) (MIT)
+standing in for it; the surfaces below are real and were read from that code.
 **Vessel:** `metatoy/fls-harness-demo` (fork of `playpip/pip-web`).
 **Design system:** Night Shift.
 **Filed under:** Even Money, and answerable to *nobody at our tables is playing a different
@@ -10,7 +12,7 @@ game*.
 
 ## What this expedition is for
 
-pip already works. This is not a rescue; it is choosing the next thing worth building in a
+Pocket already works. This is not a rescue; it is choosing the next thing worth building in a
 product that has more surface than it has polish.
 
 Three questions, in one expedition, because they trade against each other and answering

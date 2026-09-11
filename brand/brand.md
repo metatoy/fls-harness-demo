@@ -30,9 +30,16 @@ It also says what we refuse. A company whose name is a fair bet cannot ship a ri
 ## What we are
 
 We build poker software: the games people play, and the tools they get better with. Ten
-brands, one company, one set of promises. [pip](https://github.com/playpip/pip-web) —
-single-player Texas Hold'em, play money, no account, open source — is the one in front of
-you.
+brands, one company, one set of promises.
+
+**Pocket** is the one in front of you: single-player Texas Hold'em, play money, no account.
+The name is the two cards nobody else sees — and one soft syllable that needs no poker
+literacy, in the same register as the game itself.
+
+> Pocket is a fictional product of a fictional company, and the working copy in this
+> repository is a **fork of the real, unaffiliated [pip](https://github.com/playpip/pip-web)**
+> (MIT, © Will Lamerton) standing in for it. Nothing here is pip's, and Even Money claims
+> none of pip's work as its own. See the repository README.
 
 The brands differ. What they share is not a look. It is that every one of them is the same
 kind of honest.
