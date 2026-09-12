@@ -49,8 +49,6 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@playpipio',
-    creator: '@playpipio',
     title: 'Poker without the casino.',
     description: "Real Texas Hold'em vs AI. Play money, no account needed, open source.",
   },

@@ -29,9 +29,9 @@ const FOOTER_GROUPS: {
       { label: 'Poker odds calculator', href: '/poker-odds-calculator' },
       { label: 'Blog', href: '/blog' },
       { label: 'Credits', href: '/credits' },
-      // A quiet text link rather than an icon: we have exactly one social
-      // account, and a row built for one icon reads as a placeholder.
-      { label: 'X', href: 'https://x.com/playpipio', external: true },
+      // No social link. The one that was here pointed at @playpipio, the UPSTREAM project's
+      // account — a visible link sending Pocket's users to somebody else. Pocket has no account
+      // of its own, and a footer link to an invented one would be worse than none.
     ],
   },
   {
