@@ -8,7 +8,12 @@ import { SectionScreen } from '@/components/menu/SectionScreen'
 import { DRILL_KINDS, type DrillKind, canPlayDrill } from '@/config/drills'
 import { nextDrill, randomSeed } from '@/lib/drills'
 import { PlayingCard } from '@/components/PlayingCard'
+import { handsLabel, minutesLabel } from '@/lib/drills/length'
+import { isEnabled } from '@/lib/flags'
 import { sound } from '@/lib/sound'
+// The design system itself, not a copy of it: Night Shift's Badge carries its
+// own rules and its own styling, so a chip here cannot drift from the pack.
+import { Badge } from '../../../design-system/night-shift/components/core/Badge.jsx'
 import { useHydrated } from '@/lib/useHydrated'
 import { useEntitlement } from '@/store/entitlement'
 import { useProfile } from '@/store/profile'
@@ -98,9 +103,34 @@ function DrillTile({ kind, delay }: { kind: DrillKind; delay: number }) {
             {hydrated && <Standing kind={kind} />}
           </div>
           <p className="mt-0.5 text-sm text-muted-foreground">{kind.blurb}</p>
+          <Length kind={kind} />
         </div>
       </button>
     </motion.div>
+  )
+}
+
+/**
+ * How long this kind takes, on the row: the hand count as a badge and the
+ * minutes beside it in words.
+ *
+ * Behind `drill-length` until a human turns it on, off in both environments,
+ * like every new surface here.
+ *
+ * A badge rather than a bare number because a count with no unit is a riddle,
+ * and `tone="neutral"` because the signal colour means the clock is waiting on
+ * you and this is only a fact about a room you have not walked into yet. Both
+ * halves are words on the page, so nothing about the length is said in colour
+ * or position alone. It is an estimate of a typical run and never a cap — the
+ * screen it opens still ends when the player does (lib/drills/length.ts).
+ */
+function Length({ kind }: { kind: DrillKind }) {
+  if (!isEnabled('drill-length')) return null
+  return (
+    <p className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+      <Badge>{handsLabel(kind)}</Badge>
+      <span className="tabular-nums">{minutesLabel(kind)}</span>
+    </p>
   )
 }
 
