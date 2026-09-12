@@ -6,7 +6,7 @@ import { contentAlternates, contentSocial } from '@/config/site'
 const DESCRIPTION = 'The people who build Pip. Open source, so the list writes itself.'
 
 export const metadata: Metadata = {
-  title: 'Credits · Pip',
+  title: 'Credits · Pocket',
   description: DESCRIPTION,
   alternates: contentAlternates('/credits'),
   ...contentSocial({

@@ -11,7 +11,7 @@ import { DrillIndex } from '@/components/drills/DrillIndex'
 // metadata merges a field at a time, so declaring it here would drop the
 // layout's noindex (canonical.test.ts asserts exactly that).
 export const metadata: Metadata = {
-  title: 'Drills · Pip',
+  title: 'Drills · Pocket',
   description:
     'Short spots with a right answer. Your rating moves with every one, and there is no limit on how many you play.',
 }

@@ -24,7 +24,7 @@ const DESCRIPTION =
   'Learn Texas Hold’em properly: a three-minute interactive tour, plus written guides on hand rankings and the rest. Free, no signup, nothing to install.'
 
 export const metadata: Metadata = {
-  title: 'Learn poker · Pip',
+  title: 'Learn poker · Pocket',
   description: DESCRIPTION,
   alternates: contentAlternates('/learn'),
   ...contentSocial({

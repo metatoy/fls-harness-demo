@@ -30,7 +30,7 @@ import { SUIT_GLYPH, cardFromString } from '@/lib/poker/cards'
 const guide = guideBySlug('three-pair-in-texas-holdem')!
 
 export const metadata: Metadata = {
-  title: `${guide.metaTitle} · Pip`,
+  title: `${guide.metaTitle} · Pocket`,
   description: guide.description,
   alternates: contentAlternates(`/learn/${guide.slug}`),
   ...contentSocial({

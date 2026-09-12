@@ -23,7 +23,7 @@ import { contentAlternates, contentSocial } from '@/config/site'
 const guide = guideBySlug('how-often-do-you-flop-a-set')!
 
 export const metadata: Metadata = {
-  title: `${guide.metaTitle} · Pip`,
+  title: `${guide.metaTitle} · Pocket`,
   description: guide.description,
   alternates: contentAlternates(`/learn/${guide.slug}`),
   ...contentSocial({

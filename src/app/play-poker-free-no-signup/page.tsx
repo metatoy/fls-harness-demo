@@ -42,13 +42,13 @@ const SITE_CARD = {
 }
 
 export const metadata: Metadata = {
-  title: 'Play poker free, no signup: Texas Hold’em in your browser · Pip',
+  title: 'Play poker free, no signup: Texas Hold’em in your browser · Pocket',
   description: DESCRIPTION,
   alternates: contentAlternates(PATH),
   // Written out rather than inherited: a route that declares `openGraph` at all
   // replaces the root layout's block whole, image included, and a
   // summary_large_image card with no image in it is a worse share than the
-  // generic picture it replaced. The card is Pip's own — this page has no art
+  // generic picture it replaced. The card is Pocket's own — this page has no art
   // of its own, and the site card is exactly on topic for it.
   openGraph: {
     type: 'website',

@@ -9,7 +9,7 @@ import { contentAlternates, contentSocial } from '@/config/site'
 const guide = guideBySlug('how-to-play-texas-holdem')!
 
 export const metadata: Metadata = {
-  title: `${guide.metaTitle} · Pip`,
+  title: `${guide.metaTitle} · Pocket`,
   description: guide.description,
   alternates: contentAlternates(`/learn/${guide.slug}`),
   ...contentSocial({

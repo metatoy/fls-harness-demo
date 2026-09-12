@@ -8,7 +8,7 @@ const DESCRIPTION =
   'Notes from the Pip table — what shipped, what changed, and the occasional hand worth talking about.'
 
 export const metadata: Metadata = {
-  title: 'Blog · Pip',
+  title: 'Blog · Pocket',
   description: DESCRIPTION,
   alternates: contentAlternates('/blog'),
   ...contentSocial({

@@ -23,7 +23,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { kind } = await params
   const { title, blurb } = drillKind(kind)
-  return { title: `${title} · Pip`, description: blurb }
+  return { title: `${title} · Pocket`, description: blurb }
 }
 
 export default async function Page({ params }: { params: Promise<{ kind: string }> }) {

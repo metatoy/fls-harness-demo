@@ -18,7 +18,7 @@ import {
 const guide = guideBySlug('starting-hands')!
 
 export const metadata: Metadata = {
-  title: `${guide.metaTitle} · Pip`,
+  title: `${guide.metaTitle} · Pocket`,
   description: guide.description,
   alternates: contentAlternates(`/learn/${guide.slug}`),
   ...contentSocial({

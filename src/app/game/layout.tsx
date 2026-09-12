@@ -34,7 +34,7 @@ import type { Metadata } from 'next'
 // that someone reads it, and share links took 4 views in 30 days.
 export const metadata: Metadata = {
   robots: { index: false, follow: true },
-  title: 'Play · Pip',
+  title: 'Play · Pocket',
   description: 'The app itself: pick a table, sit down, play a hand. Play money, no ads.',
 }
 

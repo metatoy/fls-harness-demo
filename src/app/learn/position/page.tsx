@@ -19,7 +19,7 @@ import { BAND_ROUGHLY, type Band, cumulativeShare } from '@/config/startingHands
 const guide = guideBySlug('position')!
 
 export const metadata: Metadata = {
-  title: `${guide.metaTitle} · Pip`,
+  title: `${guide.metaTitle} · Pocket`,
   description: guide.description,
   alternates: contentAlternates(`/learn/${guide.slug}`),
   ...contentSocial({

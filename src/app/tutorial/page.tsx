@@ -13,7 +13,7 @@ import { contentAlternates, contentSocial } from '@/config/site'
 const DESCRIPTION = 'The basics of Texas Hold’em in eight short pages. No quiz, no signup.'
 
 export const metadata: Metadata = {
-  title: 'Learn poker in three minutes — Pip',
+  title: 'Learn poker in three minutes — Pocket',
   description: DESCRIPTION,
   alternates: contentAlternates('/tutorial'),
   ...contentSocial({
