@@ -51,6 +51,24 @@ export interface DrillKind {
    */
   boardCards: number
   /**
+   * How many hands a typical run of this kind is, for the length on the tile.
+   *
+   * **Not a cap and never enforced.** Nothing stops at this number: it is here
+   * so a player with five minutes can pick, which is the one question the room
+   * could not answer. The moment anything counts down to it, the unmetered
+   * promise above is gone — see lib/drills/length.ts.
+   */
+  sessionHands: number
+  /**
+   * How long one spot of this kind takes to read and answer, in seconds.
+   *
+   * Per kind because they are not the same job: naming the winner of a finished
+   * board is a glance, weighing two hands with two cards to come is not. The
+   * minutes on the tile are derived from this and `sessionHands`, so there is
+   * one number to edit and no second copy to fall behind.
+   */
+  secondsPerHand: number
+  /**
    * Part of the membership rather than free.
    *
    * Absent means free forever, and that is not a default anyone may change
@@ -78,6 +96,8 @@ export const DRILL_KINDS: DrillKind[] = [
     question: 'Which hand takes it?',
     gradedBy: 'Settled by the same code that settles a showdown at the table, card by card.',
     boardCards: 5,
+    sessionHands: 12,
+    secondsPerHand: 15,
   },
   {
     id: 'count-your-outs',
@@ -87,6 +107,8 @@ export const DRILL_KINDS: DrillKind[] = [
     gradedBy:
       'Settled by dealing all 44 cards you cannot see, one at a time, and reading the showdown.',
     boardCards: 4,
+    sessionHands: 10,
+    secondsPerHand: 30,
     membersOnly: true,
   },
   {
@@ -98,6 +120,8 @@ export const DRILL_KINDS: DrillKind[] = [
     gradedBy:
       'Settled by dealing all 44 cards you cannot see and holding what gets there against what the pot is charging.',
     boardCards: 4,
+    sessionHands: 10,
+    secondsPerHand: 24,
     membersOnly: true,
   },
   {
@@ -108,6 +132,8 @@ export const DRILL_KINDS: DrillKind[] = [
     gradedBy:
       'Settled by dealing every pair of cards that could still come, all 990 of them, and reading each showdown.',
     boardCards: 3,
+    sessionHands: 8,
+    secondsPerHand: 45,
     membersOnly: true,
   },
 ]

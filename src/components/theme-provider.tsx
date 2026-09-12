@@ -62,11 +62,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   // Mirror the resolved theme onto <html> (the boot script did first paint).
+  // Night Shift's token layer is a second dial on the same element: night is its
+  // bare :root and day is an explicit data-theme="day", so anything built from
+  // the design system reads the theme the player actually chose rather than
+  // staying dark on a light page. Nothing else consumes --ns-* yet.
   useEffect(() => {
     const root = document.documentElement
     root.classList.remove(resolvedTheme === 'dark' ? 'light' : 'dark')
     root.classList.add(resolvedTheme)
     root.style.colorScheme = resolvedTheme
+    if (resolvedTheme === 'light') root.dataset.theme = 'day'
+    else delete root.dataset.theme
   }, [resolvedTheme])
 
   const setTheme = useCallback((next: Theme) => {
@@ -94,4 +100,4 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
  * as an inline <script> by the SERVER layout — that's what keeps React's
  * client-script warning away. Mirrors readStored + system resolution above.
  */
-export const THEME_BOOT_SCRIPT = `(function(){try{var t=localStorage.getItem('${STORAGE_KEY}');if(t!=='light'&&t!=='dark'&&t!=='system')t='${DEFAULT_THEME}';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;r.classList.remove(d?'light':'dark');r.classList.add(d?'dark':'light');r.style.colorScheme=d?'dark':'light'}catch(e){}})()`
+export const THEME_BOOT_SCRIPT = `(function(){try{var t=localStorage.getItem('${STORAGE_KEY}');if(t!=='light'&&t!=='dark'&&t!=='system')t='${DEFAULT_THEME}';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;r.classList.remove(d?'light':'dark');r.classList.add(d?'dark':'light');r.style.colorScheme=d?'dark':'light';if(d)delete r.dataset.theme;else r.dataset.theme='day'}catch(e){}})()`
