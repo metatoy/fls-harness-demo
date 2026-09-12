@@ -29,7 +29,7 @@ export function Splash() {
 /** The Pip poker chip (matches the favicon at app/icon.svg). */
 function ChipMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 32 32" className={cn(className)} aria-label="Loading pip" role="img">
+    <svg viewBox="0 0 32 32" className={cn(className)} aria-label="Loading Pocket" role="img">
       <circle cx="16" cy="16" r="15" fill="#7C8CF0" />
       <circle
         cx="16"
