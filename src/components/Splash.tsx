@@ -14,12 +14,12 @@ import { cn } from '@/lib/utils'
 export function Splash() {
   return (
     <div className="relative grid min-h-dvh place-items-center overflow-hidden bg-background">
-      {/* soft pip glow — the single accent, low alpha (matches the landing) */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(60%_60%_at_50%_-10%,color-mix(in_oklch,var(--color-pip)_16%,transparent),transparent_70%)]" />
+      {/* soft pocket glow — the single accent, low alpha (matches the landing) */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(60%_60%_at_50%_-10%,color-mix(in_oklch,var(--color-pocket)_16%,transparent),transparent_70%)]" />
       <div className="flex flex-col items-center gap-4">
         <ChipMark className="size-14 motion-safe:animate-pulse" />
         <span className="text-xl font-semibold lowercase tracking-tight text-muted-foreground">
-          pip
+          pocket
         </span>
       </div>
     </div>

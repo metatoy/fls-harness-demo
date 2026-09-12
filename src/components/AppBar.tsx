@@ -17,7 +17,7 @@ type Leading = 'profile' | 'back' | 'none'
 
 /**
  * The one navigation bar for the whole app. Every screen drops this in rather
- * than hand-rolling its own, so the back arrow, the pip wordmark, and the
+ * than hand-rolling its own, so the back arrow, the pocket wordmark, and the
  * Style + Settings buttons are identical everywhere. It owns the Profile,
  * Style and Settings dialogs — those live here, not per-page.
  *
@@ -26,7 +26,7 @@ type Leading = 'profile' | 'back' | 'none'
  *   default, or `onBack` for a custom exit like the table's leave-confirm).
  * - `title` — an optional centred label (the table shows venue + blinds).
  * - `actions` — page-specific buttons, rendered just before the shared
- *   pip · Style · Settings cluster.
+ *   pocket · Style · Settings cluster.
  */
 export function AppBar({
   leading = 'back',
@@ -42,7 +42,7 @@ export function AppBar({
   onBack?: () => void
   title?: React.ReactNode
   actions?: React.ReactNode
-  /** The pip wordmark. Off on the table, where the venue name is the title. */
+  /** The pocket wordmark. Off on the table, where the venue name is the title. */
   showWordmark?: boolean
   className?: string
 }) {
@@ -96,12 +96,12 @@ export function AppBar({
           </div>
         )}
 
-        {/* the shared right cluster: page actions, then pip · Style · Settings */}
+        {/* the shared right cluster: page actions, then pocket · Style · Settings */}
         <div className="flex items-center gap-0.5 md:gap-1">
           {actions}
           {showWordmark && (
             <span className="mx-1 select-none text-xl font-semibold lowercase tracking-tight text-muted-foreground">
-              pip
+              pocket
             </span>
           )}
           {/* Signed out only, and it vanishes permanently once there is an

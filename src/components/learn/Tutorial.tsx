@@ -67,7 +67,7 @@ export function Tutorial() {
             href="/"
             className="text-xl font-semibold lowercase tracking-tight text-muted-foreground transition hover:text-foreground"
           >
-            pip
+            pocket
           </Link>
           <div className="flex items-center gap-1">
             <ThemeToggle />

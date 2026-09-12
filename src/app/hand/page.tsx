@@ -341,15 +341,15 @@ function InvalidLink() {
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative isolate min-h-dvh w-full">
-      {/* the single accent — a soft pip glow across the top of the page */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[560px] bg-[radial-gradient(60%_60%_at_50%_-5%,color-mix(in_oklch,var(--color-pip)_26%,transparent),transparent_72%)]" />
+      {/* the single accent — a soft pocket glow across the top of the page */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[560px] bg-[radial-gradient(60%_60%_at_50%_-5%,color-mix(in_oklch,var(--color-pocket)_26%,transparent),transparent_72%)]" />
       <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-6 py-6">
         <div className="mb-6 flex items-center justify-between">
           <Link
             href="/"
             className="text-xl font-semibold lowercase tracking-tight text-muted-foreground transition hover:text-foreground"
           >
-            pip
+            pocket
           </Link>
           <ThemeToggle />
         </div>

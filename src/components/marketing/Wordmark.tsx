@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-/** The pip wordmark — the chip mark plus the lowercase name. Shared by the
+/** The pocket wordmark — the chip mark plus the lowercase name. Shared by the
  * marketing landing and the legal pages. */
 export function Wordmark({ className }: { className?: string }) {
   return (
@@ -11,7 +11,7 @@ export function Wordmark({ className }: { className?: string }) {
       )}
     >
       <ChipMark className="size-5" />
-      pip
+      pocket
     </span>
   )
 }

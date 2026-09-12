@@ -36,7 +36,7 @@ export function Onboarding({ onCreated }: { onCreated?: () => void }) {
         className="w-full max-w-sm"
       >
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-semibold lowercase tracking-tight">pip</h1>
+          <h1 className="text-4xl font-semibold lowercase tracking-tight">pocket</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Casual poker, redesigned. Make your player.
           </p>
