@@ -7,7 +7,7 @@ import type { Metadata } from 'next'
 // list we submit; it never stopped Google reaching them, because the landing
 // page's Play button links straight here. So /game got indexed anyway, and it
 // got indexed wearing the home page's clothes: no route under here exports
-// metadata, so all six inherit the root layout's title ("Pip - clean poker"),
+// metadata, so all six inherit the root layout's title ("Pocket — clean poker"),
 // the home page's description and an og:url pointing at the home page. None of
 // them carries a canonical, because canonical.test.ts only reads the sitemap.
 //
