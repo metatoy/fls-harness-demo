@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   alternates: contentAlternates('/blog'),
   ...contentSocial({
     path: '/blog',
-    title: 'The Pip blog',
+    title: 'The Pocket blog',
     description: DESCRIPTION,
     type: 'website',
   }),

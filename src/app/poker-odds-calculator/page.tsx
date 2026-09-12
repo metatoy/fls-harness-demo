@@ -30,7 +30,7 @@ const DESCRIPTION =
   'Texas Hold’em odds, worked out in your browser. Pick your cards, add a board, choose how many opponents. Free, no signup, no ads, nothing to install.'
 
 export const metadata: Metadata = {
-  title: 'Poker odds calculator - free, no signup | Pip',
+  title: 'Poker odds calculator - free, no signup | Pocket',
   description: DESCRIPTION,
   alternates: contentAlternates(PATH),
   ...contentSocial({ path: PATH, title: TITLE, description: DESCRIPTION, type: 'website' }),
