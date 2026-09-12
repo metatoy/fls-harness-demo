@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { contentAlternates, contentSocial } from './site'
+import { SITE_URL, contentAlternates, contentSocial } from './site'
 
 // The blog's table of contents. Each post is a static page under
 // src/app/blog/<slug>/ — this registry drives the index page, the sitemap, and
@@ -102,7 +102,7 @@ const MONTHS = [
 export function postMetadata(post: BlogPost): Metadata {
   const path = `/blog/${post.slug}`
   return {
-    title: `${post.title} · Pip`,
+    title: `${post.title} · Pocket`,
     description: post.description,
     alternates: contentAlternates(path),
     ...contentSocial({ path, title: post.title, description: post.description }),
@@ -115,7 +115,7 @@ export function formatPostDate(date: string): string {
   return `${d} ${MONTHS[m - 1]} ${y}`
 }
 
-const SITE = 'https://playpip.io'
+const SITE = SITE_URL
 
 /** Escape the five XML entities so registry copy stays safe to edit. */
 function escapeXml(text: string): string {
@@ -151,12 +151,12 @@ export function buildRssXml(posts: BlogPost[]): string {
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
     '  <channel>',
-    '    <title>Blog · Pip</title>',
+    '    <title>Blog · Pocket</title>',
     `    <link>${SITE}/blog</link>`,
     // Tells aggregators the feed's own address, so a mirrored or proxied copy
     // still points home. The one thing the W3C validator asks for.
     `    <atom:link href="${SITE}/rss.xml" rel="self" type="application/rss+xml" />`,
-    '    <description>Notes from the Pip table — what shipped, what changed, and the occasional hand worth talking about.</description>',
+    '    <description>Notes from the Pocket table — what shipped, what changed, and the occasional hand worth talking about.</description>',
     items,
     '  </channel>',
     '</rss>',

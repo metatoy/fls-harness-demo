@@ -1,4 +1,4 @@
--- Pip's sync schema. One table, one policy, one row per player.
+-- Pocket's sync schema. One table, one policy, one row per player.
 --
 -- The initial migration. Applied with `supabase db push`, never by hand in the
 -- dashboard: a schema change that only exists in a dashboard is a change nobody

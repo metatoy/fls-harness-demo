@@ -17,7 +17,7 @@ project_id = "pip-web"
 port = 54321
 # Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
 # endpoints. public and storage are always included.
-# Matches the linked project. No `storage`: Pip stores no files, only the one profiles row.
+# Matches the linked project. No `storage`: Pocket stores no files, only the one profiles row.
 schemas = ["public", "graphql_public"]
 # Extra schemas to add to the search_path of every request. public is always included.
 extra_search_path = ["public", "extensions"]

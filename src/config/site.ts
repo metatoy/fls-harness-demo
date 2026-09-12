@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 // anything else absolute are built from it, so they cannot drift apart.
 
 /** No trailing slash — every path below is written with a leading one. */
-export const SITE_URL = 'https://playpip.io'
+export const SITE_URL = 'https://pocket.n8plusus.com'
 
 /** The feed, linked from every content page for reader discovery. */
 export const RSS_URL = `${SITE_URL}/rss.xml`
@@ -48,7 +48,7 @@ export function contentAlternates(path: string): Metadata['alternates'] {
  * it. Two Learn guides are live in exactly that state today.
  *
  * @param path Route path with a leading slash.
- * @param title Bare page title, no " · Pip" suffix — the card says Pip already.
+ * @param title Bare page title, no " · Pocket" suffix — the card says Pocket already.
  * @param image The page's own card, if it has one; otherwise Pip's.
  */
 export function contentSocial({
@@ -68,7 +68,7 @@ export function contentSocial({
   return {
     openGraph: {
       type,
-      siteName: 'Pip',
+      siteName: 'Pocket',
       locale: 'en_GB',
       url: `${SITE_URL}${path}`,
       title,
@@ -105,5 +105,5 @@ export const SITE_CARD: SocialImage = {
   url: `${SITE_URL}/opengraph-image`,
   width: 1200,
   height: 630,
-  alt: 'Pip — poker without the casino',
+  alt: 'Pocket — poker without the casino',
 }

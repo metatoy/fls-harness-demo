@@ -1,4 +1,4 @@
--- Deliberately empty. Pip has no seed data.
+-- Deliberately empty. Pocket has no seed data.
 --
 -- `profiles` starts empty and gets one row per player, written by that player's
 -- own client the first time they sync. There is no fixture, no reference table

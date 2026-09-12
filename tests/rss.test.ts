@@ -10,16 +10,16 @@ test('the feed is RSS 2.0 with a single channel and the blog metadata', (t) => {
   )
   t.true(xml.endsWith('</channel>\n</rss>\n'))
   t.is(xml.match(/<channel>/g)?.length, 1)
-  t.true(xml.includes('<title>Blog · Pip</title>'))
-  t.true(xml.includes('<link>https://playpip.io/blog</link>'))
+  t.true(xml.includes('<title>Blog · Pocket</title>'))
+  t.true(xml.includes('<link>https://pocket.n8plusus.com/blog</link>'))
   t.true(
     xml.includes(
-      '<atom:link href="https://playpip.io/rss.xml" rel="self" type="application/rss+xml" />',
+      '<atom:link href="https://pocket.n8plusus.com/rss.xml" rel="self" type="application/rss+xml" />',
     ),
   )
   t.true(
     xml.includes(
-      '<description>Notes from the Pip table — what shipped, what changed, and the occasional hand worth talking about.</description>',
+      '<description>Notes from the Pocket table — what shipped, what changed, and the occasional hand worth talking about.</description>',
     ),
   )
 })
@@ -30,7 +30,7 @@ test('one item per registry post, in registry order, with absolute URLs', (t) =>
   t.is(items.length, BLOG_POSTS.length)
   items.forEach((item, i) => {
     const post = BLOG_POSTS[i]
-    const url = `https://playpip.io/blog/${post.slug}`
+    const url = `https://pocket.n8plusus.com/blog/${post.slug}`
     t.true(item.includes(`<title>${post.title}</title>`), `title: ${post.slug}`)
     t.true(item.includes(`<link>${url}</link>`), `link: ${post.slug}`)
     t.true(item.includes(`<guid>${url}</guid>`), `guid: ${post.slug}`)
