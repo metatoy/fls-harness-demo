@@ -77,8 +77,10 @@ export function contentSocial({
     },
     twitter: {
       card: 'summary_large_image',
-      site: '@playpipio',
-      creator: '@playpipio',
+      // No site/creator handle. @playpipio is the UPSTREAM project's real account, so leaving
+      // it makes this fork's share cards attribute to them; inventing one for Pocket points at
+      // an account that does not exist. Twitter omits the byline when neither is given, which is
+      // the only honest option of the three.
       title,
       description,
       images,
