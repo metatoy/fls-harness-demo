@@ -3,9 +3,9 @@ import { LegalPage, Section, List, Item, A } from '@/components/marketing/LegalP
 import { contentAlternates } from '@/config/site'
 
 export const metadata: Metadata = {
-  title: 'Privacy · Pip',
+  title: 'Privacy · Pocket',
   description:
-    'What Pip collects (almost nothing), where your data lives, and how to delete an account.',
+    'What Pocket collects (almost nothing), where your data lives, and how to delete an account.',
   alternates: contentAlternates('/privacy'),
 }
 
@@ -14,7 +14,7 @@ export default function PrivacyPage() {
     <LegalPage title="Privacy" updated="August 2026">
       <Section title="The short version">
         <p>
-          Pip is built to need as little of your data as possible — which turns out to be almost
+          Pocket is built to need as little of your data as possible — which turns out to be almost
           none. No account needed, no personal data, no cross-site tracking, no cookies. We do count
           anonymous, cookieless usage so we can see what’s working — nothing that identifies you.
           Here’s the whole story, plainly.
@@ -31,10 +31,10 @@ export default function PrivacyPage() {
 
       <Section title="If you add an account">
         <p>
-          Pip has an optional account, and it exists for exactly one thing: carrying your progress
-          to another device. It is off unless you turn it on, in Settings, under Account. Until then
-          Pip makes no request to us at all, holds no identity for you, and there is no row anywhere
-          with your name on it.
+          Pocket has an optional account, and it exists for exactly one thing: carrying your
+          progress to another device. It is off unless you turn it on, in Settings, under Account.
+          Until then Pocket makes no request to us at all, holds no identity for you, and there is
+          no row anywhere with your name on it.
         </p>
         <p>
           Turn it on and we store two things:{' '}
@@ -49,11 +49,11 @@ export default function PrivacyPage() {
         <p>
           You can delete it from the same place you made it. “Delete my account and synced data” in
           Settings removes the account and the stored profile together, and it is genuinely gone
-          rather than flagged. Your profile on the device stays exactly as it is, and Pip keeps
+          rather than flagged. Your profile on the device stays exactly as it is, and Pocket keeps
           working the way it did before.
         </p>
         <p>
-          You can also just ask. Email <A href="mailto:hello@playpip.io">hello@playpip.io</A> from
+          You can also just ask. Email <A href="mailto:deals@metatoy.com">deals@metatoy.com</A> from
           the address on the account and we’ll delete it for you within 7 working days, whether or
           not you can still get into the app. Once it’s gone we keep nothing: no archive, no copy
           set aside, nothing to come back later and find.
@@ -86,8 +86,8 @@ export default function PrivacyPage() {
 
       <Section title="What we count">
         <p>
-          To know whether Pip is any good — whether people find it, start playing, and come back —
-          we keep a handful of anonymous, aggregate counts through{' '}
+          To know whether Pocket is any good — whether people find it, start playing, and come back
+          — we keep a handful of anonymous, aggregate counts through{' '}
           <A href="https://umami.is">Umami</A>, a privacy-first, cookieless analytics tool. It
           records things like page views and a couple of milestones (someone made a profile, someone
           played their first hand) with no cookies, no fingerprinting, and no personal data. We
@@ -118,7 +118,7 @@ export default function PrivacyPage() {
       </Section>
 
       <Section title="Children">
-        <p>Pip is play money, but it’s still card play. It’s meant for people 13 and over.</p>
+        <p>Pocket is play money, but it’s still card play. It’s meant for people 13 and over.</p>
       </Section>
 
       <Section title="Changes">
@@ -131,7 +131,7 @@ export default function PrivacyPage() {
 
       <Section title="Don't take our word for it">
         <p>
-          Pip is open source. The whole app lives at{' '}
+          Pocket is open source. The whole app lives at{' '}
           <A href="https://github.com/playpip/pip-web">github.com/playpip/pip-web</A> — you can read
           exactly what it does and doesn’t collect. Questions? Open an issue there.
         </p>

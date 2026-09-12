@@ -3,8 +3,8 @@ import { LegalPage, Section, A } from '@/components/marketing/LegalPage'
 import { contentAlternates } from '@/config/site'
 
 export const metadata: Metadata = {
-  title: 'Terms · Pip',
-  description: 'The short, human rules for using Pip — free, play money, open source.',
+  title: 'Terms · Pocket',
+  description: 'The short, human rules for using Pocket — free, play money, open source.',
   alternates: contentAlternates('/terms'),
 }
 
@@ -13,54 +13,55 @@ export default function TermsPage() {
     <LegalPage title="Terms" updated="July 2026">
       <Section title="The short version">
         <p>
-          The plain-English rules for using Pip at <A href="https://playpip.io">playpip.io</A>. No
-          surprises: Pip is free, play money, and open source.
+          The plain-English rules for using Pocket at{' '}
+          <A href="https://pocket.n8plusus.com">pocket.n8plusus.com</A>. No surprises: Pocket is
+          free, play money, and open source.
         </p>
       </Section>
 
       <Section title="It's play money — not gambling">
         <p>
-          Pip is a single-player poker game played with pretend chips. There is no real money
+          Pocket is a single-player poker game played with pretend chips. There is no real money
           anywhere in it: nothing to deposit, nothing to win, no prizes, nothing to cash out. Your
-          “Roll” is a number in your browser, not a balance. Pip is not a gambling service and is
+          “Roll” is a number in your browser, not a balance. Pocket is not a gambling service and is
           not a way to gamble.
         </p>
       </Section>
 
       <Section title="As is">
         <p>
-          Pip is free and provided as-is. We build it with care, but we can’t promise it will always
-          work perfectly, never lose your local data, or suit any particular purpose. To the extent
-          the law allows, we’re not liable for anything that comes of using it. If your progress
-          matters to you, back your profile up from Settings. Unless you switch sync on, it lives
-          only on your device, so it’s yours to keep and yours to lose.
+          Pocket is free and provided as-is. We build it with care, but we can’t promise it will
+          always work perfectly, never lose your local data, or suit any particular purpose. To the
+          extent the law allows, we’re not liable for anything that comes of using it. If your
+          progress matters to you, back your profile up from Settings. Unless you switch sync on, it
+          lives only on your device, so it’s yours to keep and yours to lose.
         </p>
       </Section>
 
       <Section title="Play nice">
         <p>
-          Use Pip for what it’s for. Don’t attack or disrupt the service, or try to break it for
+          Use Pocket for what it’s for. Don’t attack or disrupt the service, or try to break it for
           other people. That’s about the whole of it.
         </p>
       </Section>
 
       <Section title="The code">
         <p>
-          Pip’s source is public at{' '}
+          Pocket’s source is public at{' '}
           <A href="https://github.com/playpip/pip-web">github.com/playpip/pip-web</A> — read it,
-          learn from it, check our claims. These terms cover the game as hosted at playpip.io; the
-          code itself is released under the MIT licence in the repository.
+          learn from it, check our claims. These terms cover the game as hosted at
+          pocket.n8plusus.com; the code itself is released under the MIT licence in the repository.
         </p>
       </Section>
 
       <Section title="Age">
-        <p>Pip is intended for people 13 and over.</p>
+        <p>Pocket is intended for people 13 and over.</p>
       </Section>
 
       <Section title="Changes">
         <p>
-          We may update these terms as Pip grows — most likely when we add cosmetics you can buy.
-          We’ll change the date at the top when we do. Keep using Pip and you’re fine with the
+          We may update these terms as Pocket grows — most likely when we add cosmetics you can buy.
+          We’ll change the date at the top when we do. Keep using Pocket and you’re fine with the
           current version.
         </p>
       </Section>
