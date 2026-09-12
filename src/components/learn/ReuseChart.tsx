@@ -26,7 +26,7 @@ function creditSnippet(art: GuideArt, href: string, title: string): string {
     `       alt="${art.alt}"`,
     `       width="${art.width}" height="${art.height}">`,
     '</a>',
-    `<p>Chart from <a href="${href}">${title}</a> by <a href="${SITE}">Pip</a></p>`,
+    `<p>Chart from <a href="${href}">${title}</a> by <a href="${SITE}">Pocket</a></p>`,
   ].join('\n')
 }
 

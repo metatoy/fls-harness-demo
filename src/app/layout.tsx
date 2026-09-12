@@ -26,22 +26,22 @@ const UMAMI_SRC = process.env.NEXT_PUBLIC_UMAMI_SRC ?? 'https://cloud.umami.is/s
 
 export const metadata: Metadata = {
   // Required so static-export OG/Twitter image URLs resolve to absolute links.
-  metadataBase: new URL('https://playpip.io'),
+  metadataBase: new URL('https://pocket.n8plusus.com'),
   // Feed discovery for readers — emitted as a <link rel="alternate"> on every page.
-  alternates: { types: { 'application/rss+xml': 'https://playpip.io/rss.xml' } },
-  title: 'Pip — clean poker',
+  alternates: { types: { 'application/rss+xml': 'https://pocket.n8plusus.com/rss.xml' } },
+  title: 'Pocket — clean poker',
   description: "Casual Texas Hold'em, redesigned. No fake felt, no neon.",
   appleWebApp: {
     capable: true,
-    title: 'pip',
+    title: 'pocket',
     statusBarStyle: 'black-translucent',
   },
   // The og/twitter image comes from `app/opengraph-image.tsx` — Next wires it
   // into `openGraph.images` + `twitter.images` automatically.
   openGraph: {
     type: 'website',
-    siteName: 'Pip',
-    url: 'https://playpip.io',
+    siteName: 'Pocket',
+    url: 'https://pocket.n8plusus.com',
     title: 'Poker without the casino.',
     description:
       "Real Texas Hold'em vs AI, wrapped in a calm, modern app. Play money, no account needed, open source.",
