@@ -54,7 +54,7 @@ export function ActionBar({ hand }: { hand: HandState }) {
         className="flex gap-2"
       >
         <Pill onClick={() => act({ type: 'fold' })} tone="ghost">
-          Fold
+          Fold hand
         </Pill>
         {legal.canCheck ? (
           <Pill onClick={() => act({ type: 'check' })}>Check</Pill>
