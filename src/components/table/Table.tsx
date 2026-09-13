@@ -19,6 +19,7 @@ import { PlayerDialog } from './PlayerDialog'
 import { ReactionDock, ReactionSlot, useHeroReaction } from './Reactions'
 import { RunRecap } from './RunRecap'
 import { isEnabled } from '@/lib/flags'
+import { stackDepth } from '@/lib/stackDepth'
 import { botReaction, type Outcome } from '@/lib/reactions'
 import { useGame } from '@/store/game'
 import { useProfile } from '@/store/profile'
@@ -824,6 +825,9 @@ function HeroPanel({
   const label = useHandLabel(hero, hand)
   const folded = hero.status === 'folded'
   const [page, setPage] = useState(0)
+  // Read from the same `hero` and `hand` this render draws the chip count from, so the two can
+  // never disagree: there is no second source and nothing held between renders.
+  const depth = isEnabled('hero-stack-depth') ? stackDepth(hero.stack, hand.bigBlind) : null
 
   return (
     <div className="relative flex min-h-[90px] min-w-0 flex-1 basis-0 flex-col items-center justify-center overflow-hidden rounded-2xl bg-foreground/[0.04]">
@@ -858,6 +862,15 @@ function HeroPanel({
                 )}
               </div>
               <span className="text-xs font-semibold tabular-nums">{money(hero.stack)}</span>
+              {depth && (
+                // Third line in the same flow, so the null state simply isn't there: no
+                // placeholder and no reserved box, which is what keeps the pod the height of
+                // the two lines it had before. Muted and a size down because the chips are
+                // the figure and this is the reading of them.
+                <span className="text-3xs leading-none tabular-nums text-muted-foreground">
+                  {depth}
+                </span>
+              )}
               {hero.committedThisStreet > 0 && (
                 <span className="rounded-full bg-foreground/10 px-2 py-0.5 text-3xs font-medium tabular-nums">
                   {money(hero.committedThisStreet)}
