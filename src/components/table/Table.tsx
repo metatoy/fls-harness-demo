@@ -16,7 +16,10 @@ import { HandHistoryDialog } from './HandHistoryDialog'
 import { HandsHelpDialog } from './HandsHelpDialog'
 import { LeaveDialog } from './LeaveDialog'
 import { PlayerDialog } from './PlayerDialog'
+import { ReactionDock, ReactionSlot, useHeroReaction } from './Reactions'
 import { RunRecap } from './RunRecap'
+import { isEnabled } from '@/lib/flags'
+import { botReaction, type Outcome } from '@/lib/reactions'
 import { useGame } from '@/store/game'
 import { useProfile } from '@/store/profile'
 import { potSize, type HandState, type Player } from '@/lib/poker/engine'
@@ -64,6 +67,7 @@ export function Table() {
     smallBlind,
     bigBlind,
     blindLevel,
+    handIndex,
     newAwards,
     lastBounty,
     lastRead,
@@ -87,6 +91,8 @@ export function Table() {
   const [leaveOpen, setLeaveOpen] = useState(false)
   const [viewId, setViewId] = useState<string | null>(null)
   const hasHistory = useGame((s) => s.lastHand !== null)
+  const reactionsOn = isEnabled('table-reactions')
+  const { fired, fire } = useHeroReaction()
 
   const metaById = useMemo(() => new Map(seats.map((s) => [s.id, s])), [seats])
 
@@ -106,6 +112,37 @@ export function Table() {
     status !== 'playing' && hand.result
       ? Array.from(new Set(hand.result.potsAwarded.flatMap((p) => p.winners)))
       : []
+
+  /**
+   * An opponent's reaction to the hand just finished, or null for silence.
+   *
+   * Only ever after the result is on the table, and only ever to the result itself — an opponent
+   * who winced mid-hand would be handing this player a tell nobody else at the table could get,
+   * which is the line brand/northstar.md draws. Reacting to a pot everyone has already seen is
+   * table manners, not information. Pure and keyed by the hand, so it does not re-roll on a
+   * re-render and a screenshot of the table matches the table.
+   */
+  const botSlot = (p: Player) => {
+    if (!reactionsOn) return null
+    if (status === 'playing' || !hand.result) return <ReactionSlot fired={null} />
+    const outcome: Outcome = potWinners.includes(p.id)
+      ? 'won'
+      : p.status === 'folded'
+        ? 'folded'
+        : 'lost'
+    const reaction = botReaction(p.id, handIndex, outcome)
+    return <ReactionSlot fired={reaction ? { reaction, seq: handIndex } : null} />
+  }
+
+  /* The player's own dock, under their own seat. The slot above it is where their reaction
+     lands, so every reaction on the table — theirs and the opponents' — is attributed by the
+     face it sits next to. */
+  const heroReactions = reactionsOn ? (
+    <div className="flex flex-col items-center gap-1">
+      <ReactionSlot fired={fired} />
+      <ReactionDock onFire={fire} />
+    </div>
+  ) : null
 
   const goHome = () => {
     leave()
@@ -269,6 +306,7 @@ export function Table() {
                     reveal={showdownReveal && p.status !== 'folded' && p.status !== 'out'}
                     cardsSide="right"
                     onSelect={() => selectSeat(p.id)}
+                    reactionSlot={botSlot(p)}
                   />
                 )
               })}
@@ -309,21 +347,24 @@ export function Table() {
 
           {/* hero: big fanned hole cards + a swipeable profile / odds panel */}
           {hero && heroMeta && (
-            <div className="flex items-stretch gap-3 px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+2.75rem)]">
-              {/* cards and panel each get exactly half the row; cards align
-                  with the left edge of the action buttons (pl offsets the
-                  first card's tilt so its corner doesn't poke past) */}
-              <div className="flex flex-1 basis-0 items-end justify-start pl-2">
-                <HeroCards hero={hero} hand={hand} size="hero" fanned />
+            <div className="flex flex-col gap-1 px-3 pt-3 pb-[calc(env(safe-area-inset-bottom)+2.75rem)]">
+              <div className="flex items-stretch gap-3">
+                {/* cards and panel each get exactly half the row; cards align
+                    with the left edge of the action buttons (pl offsets the
+                    first card's tilt so its corner doesn't poke past) */}
+                <div className="flex flex-1 basis-0 items-end justify-start pl-2">
+                  <HeroCards hero={hero} hand={hand} size="hero" fanned />
+                </div>
+                <HeroPanel
+                  hero={hero}
+                  avatar={heroMeta.avatar}
+                  hand={hand}
+                  equity={heroEquity}
+                  isButton={hero.id === buttonPlayerId}
+                  isActive={activeId === hero.id}
+                />
               </div>
-              <HeroPanel
-                hero={hero}
-                avatar={heroMeta.avatar}
-                hand={hand}
-                equity={heroEquity}
-                isButton={hero.id === buttonPlayerId}
-                isActive={activeId === hero.id}
-              />
+              {heroReactions}
             </div>
           )}
         </>
@@ -351,6 +392,7 @@ export function Table() {
                     reveal={showdownReveal && p.status !== 'folded' && p.status !== 'out'}
                     cardsSide={parseFloat(positions[i].left) > 50 ? 'left' : 'right'}
                     onSelect={() => selectSeat(p.id)}
+                    reactionSlot={botSlot(p)}
                   />
                 </div>
               )
@@ -401,6 +443,8 @@ export function Table() {
                   />
                 </div>
               </div>
+
+              {heroReactions}
 
               <div className="w-full max-w-xl">{actionArea}</div>
             </div>
@@ -566,6 +610,7 @@ function Seat({
   cardsSide,
   onSelect,
   layout = 'arc',
+  reactionSlot,
 }: {
   player: Player
   name: string
@@ -577,6 +622,8 @@ function Seat({
   cardsSide: 'left' | 'right'
   onSelect: () => void
   layout?: 'arc' | 'row'
+  /** The seat's reaction, in its own reserved row above the portrait. Null when the flag is off. */
+  reactionSlot?: React.ReactNode
 }) {
   const folded = player.status === 'folded'
   const money = useMoney()
@@ -586,6 +633,7 @@ function Seat({
 
   return (
     <div className={cn('flex flex-col items-center', row ? 'w-16 gap-0.5' : 'w-20 gap-1')}>
+      {reactionSlot}
       <div className="relative">
         <motion.button
           onClick={onSelect}

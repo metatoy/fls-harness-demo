@@ -44,9 +44,13 @@ export function flagEnabled(
   return source?.[name]?.[env] === true
 }
 
-/** Check a flag against the committed flags.json. */
+/**
+ * Is a flag on here and now? The committed `flags.json`, unless a runtime override says
+ * otherwise — and overrides exist on stage only (see `activeOverrides`).
+ */
 export function isEnabled(name: string, env: Env = currentEnv()): boolean {
-  return flagEnabled(flags, name, env)
+  const override = activeOverrides(env)[name]
+  return typeof override === 'boolean' ? override : flagEnabled(flags, name, env)
 }
 
 /**
@@ -58,4 +62,98 @@ export function isEnabled(name: string, env: Env = currentEnv()): boolean {
  */
 export function currentEnv(): Env {
   return process.env.NEXT_PUBLIC_FLS_ENV === 'prod' ? 'prod' : 'stage'
+}
+
+/**
+ * Runtime overrides — `?flags-table-reactions=true`.
+ *
+ * A flag lives in `flags.json` and is read when the app is BUILT, so seeing a change on stage
+ * otherwise means editing a file, pushing, and waiting for a deploy. That is a long way round for
+ * the thing a reviewer does most: look at the new surface, then look at the old one.
+ *
+ * An override is remembered in localStorage, so it survives the next navigation — this is a
+ * multi-page static export and a query string does not outlive a link click.
+ *
+ * **Stage only.** In production the committed flag is the only answer. This repository's own
+ * standard is that every new surface ships off in BOTH environments until a human turns it on,
+ * and a URL that switches one on in prod would make that standard decorative — anyone holding
+ * the link would be running unreleased code. Reviewing happens on stage; that is what stage is.
+ */
+export const OVERRIDE_PREFIX = 'flags-'
+const OVERRIDE_STORE = 'fls.flag-overrides'
+
+/**
+ * Overrides expressed by a query string. Pure, so it can be tested without a browser.
+ *
+ * `?flags-x=true` turns x on and `?flags-x=false` turns it OFF — both directions, because
+ * comparing the new surface against the old one on the same build is the other half of reviewing
+ * it. An empty value (`?flags-x=`) forgets the override and returns x to whatever was committed.
+ */
+export function overridesFromQuery(search: string): Record<string, boolean | null> {
+  const out: Record<string, boolean | null> = {}
+  const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search)
+  for (const [key, value] of params) {
+    if (!key.startsWith(OVERRIDE_PREFIX)) continue
+    const name = key.slice(OVERRIDE_PREFIX.length)
+    if (!name || name === 'reset') continue
+    out[name] = value === '' ? null : value !== 'false' && value !== '0'
+  }
+  return out
+}
+
+/** Merge new overrides onto stored ones; `null` removes. Pure, for the same reason. */
+export function mergeOverrides(
+  stored: Record<string, boolean>,
+  incoming: Record<string, boolean | null>,
+): Record<string, boolean> {
+  const out = { ...stored }
+  for (const [name, value] of Object.entries(incoming)) {
+    if (value === null) delete out[name]
+    else out[name] = value
+  }
+  return out
+}
+
+/** What localStorage holds, or `{}` — private browsing throws on read, and a flag override is
+ *  never worth taking the page down for. */
+function stored(): Record<string, boolean> {
+  try {
+    const raw = window.localStorage.getItem(OVERRIDE_STORE)
+    const parsed: unknown = raw ? JSON.parse(raw) : {}
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {}
+    return Object.fromEntries(
+      Object.entries(parsed as Record<string, unknown>).filter(([, v]) => typeof v === 'boolean'),
+    ) as Record<string, boolean>
+  } catch {
+    return {}
+  }
+}
+
+/**
+ * The overrides in force: whatever the URL says, merged onto what was remembered, then
+ * remembered. Returns `{}` during prerender and in production, where there are none.
+ */
+export function activeOverrides(env: Env = currentEnv()): Record<string, boolean> {
+  if (env === 'prod' || typeof window === 'undefined') return {}
+  if (new URLSearchParams(window.location.search).has('flags-reset')) {
+    clearOverrides()
+    return {}
+  }
+  const merged = mergeOverrides(stored(), overridesFromQuery(window.location.search))
+  try {
+    window.localStorage.setItem(OVERRIDE_STORE, JSON.stringify(merged))
+  } catch {
+    // Remembering is a convenience; the override still applies to this page.
+  }
+  return merged
+}
+
+/** Forget every override — `?flags-reset`. The way back to what is actually committed, without
+ *  having to remember which flags you switched. */
+function clearOverrides(): void {
+  try {
+    window.localStorage.removeItem(OVERRIDE_STORE)
+  } catch {
+    // nothing stored, nothing to forget
+  }
 }

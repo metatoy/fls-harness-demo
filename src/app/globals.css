@@ -197,6 +197,61 @@
   }
 }
 
+/* Table reactions (src/components/table/Reactions.tsx, behind the `table-reactions` flag).
+   The pop rises out of the reserved slot above a portrait, holds, and goes. It is a CSS
+   animation rather than a timer so nothing has to set state in an effect to clear it, and
+   `forwards` is what makes it ephemeral: the element stays in the flow at opacity 0.
+
+   The hold below is the one value here with no token behind it — the layer carries
+   --ns-m-state (180ms) and --ns-m-move (320ms) and nothing longer, and neither is a legible
+   dwell for something you have to read a word off. It is written once, here, rather than
+   invented as an --ns-* the design system never authored. */
+@keyframes ns-reaction-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.92);
+  }
+  14% {
+    opacity: 1;
+    transform: none;
+  }
+  72% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.ns-reaction-pop {
+  animation: ns-reaction-pop 2200ms var(--ns-m-ease) forwards;
+}
+/* Reduced motion keeps the state change — it appears and it goes — and drops the travel. */
+@media (prefers-reduced-motion: reduce) {
+  .ns-reaction-pop {
+    animation-name: ns-reaction-fade;
+  }
+  @keyframes ns-reaction-fade {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    14%,
+    72% {
+      opacity: 1;
+    }
+  }
+}
+/* The dock's buttons are the design system's Button, which ships its own CSS but not the
+   system-wide focus rule — that lives in night-shift/styles.css, which this app cannot load
+   (it would repaint every page in the night palette). Restate only the focus ring, so the
+   control still clears the visible-focus floor. */
+.ns-reaction-dock .ns-btn:focus-visible {
+  outline: var(--ns-border-strong) solid var(--ns-signal);
+  outline-offset: 2px;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
