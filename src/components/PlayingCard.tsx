@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import type { Card, Suit } from '@/lib/poker/cards'
-import { SUIT_GLYPH, isRed } from '@/lib/poker/cards'
+import { SUIT_GLYPH } from '@/lib/poker/cards'
 import { useProfile } from '@/store/profile'
 import { cn } from '@/lib/utils'
 
@@ -15,9 +15,22 @@ const FOUR_COLOUR_INK: Record<Suit, string> = {
   c: 'text-suit-green',
 }
 
+// The classic face takes its ink from the root's per-suit custom properties
+// (globals.css) rather than naming a colour here, so the four-colour deck
+// SETTING — one class on <html>, see lib/fourColourDeck.ts — reaches every card
+// already on screen. With the setting off these resolve to what they always
+// were: `--suit-h`/`--suit-d` are the brand red, `--suit-s`/`--suit-c` the
+// card-face ink.
+const SUIT_INK: Record<Suit, string> = {
+  h: 'suit-ink-h',
+  s: 'suit-ink-s',
+  d: 'suit-ink-d',
+  c: 'suit-ink-c',
+}
+
 function inkFor(suit: Suit, deckFace: string): string {
   if (deckFace === 'face-fourcolor') return FOUR_COLOUR_INK[suit]
-  return isRed(suit) ? 'text-suit-red' : 'text-cardface-ink'
+  return SUIT_INK[suit]
 }
 
 // Ten displays as "10" on the face; the engine keeps 'T' internally.

@@ -74,6 +74,14 @@
   --color-suit-green: #3a8f5f;
   --color-cardface: #fafafa;
   --color-cardface-ink: #16161d;
+  /* The four-colour deck SETTING (Settings → Display) is a readability aid, not
+     the Chip Shop's face, so it carries its own ink: every one of these clears
+     4.5:1 against --color-cardface, which the softer brand red above does not.
+     tests/fourColourDeck.test.ts measures them. */
+  --color-deck4-spade: #111111;
+  --color-deck4-heart: #c1121f;
+  --color-deck4-diamond: #0b63ce;
+  --color-deck4-club: #077a3b;
   --color-pip: #7c8cf0;
   --color-felt: #0a0a0b;
 }
@@ -145,6 +153,38 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* --- suit ink ---------------------------------------------------------------
+   One custom property per suit, resolved at the root, so no card face carries a
+   colour of its own. `.deck-four-colour` (added to <html> by the four-colour
+   deck setting, src/lib/fourColourDeck.ts) re-points four of them and every card
+   in the document — table, hole, discard, hand history, an open panel — repaints
+   at once, without a reload or a re-deal. The defaults below resolve to exactly
+   the colours the cards had before the setting existed. */
+:root {
+  --suit-s: var(--color-cardface-ink);
+  --suit-h: var(--color-suit-red);
+  --suit-d: var(--color-suit-red);
+  --suit-c: var(--color-cardface-ink);
+}
+.deck-four-colour {
+  --suit-s: var(--color-deck4-spade);
+  --suit-h: var(--color-deck4-heart);
+  --suit-d: var(--color-deck4-diamond);
+  --suit-c: var(--color-deck4-club);
+}
+.suit-ink-s {
+  color: var(--suit-s);
+}
+.suit-ink-h {
+  color: var(--suit-h);
+}
+.suit-ink-d {
+  color: var(--suit-d);
+}
+.suit-ink-c {
+  color: var(--suit-c);
 }
 
 /* --- venue ambience — "barely alive" ---------------------------------------
