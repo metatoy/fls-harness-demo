@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { THEME_BOOT_SCRIPT, ThemeProvider } from '@/components/theme-provider'
 import { TEXT_SCALE_BOOT_SCRIPT, TextScaleProvider } from '@/components/text-scale-provider'
+import { FOUR_COLOUR_DECK_BOOT_SCRIPT } from '@/lib/fourColourDeck'
 import { AppBoot } from '@/components/AppBoot'
 import { SorbTokens } from '@/components/SorbTokens'
 import { SyncConflictDialog } from '@/components/settings/SyncConflictDialog'
@@ -86,6 +87,10 @@ export default function RootLayout({
             paint, or every rem in the app reflows after hydration. */}
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, self-authored boot script */}
         <script dangerouslySetInnerHTML={{ __html: TEXT_SCALE_BOOT_SCRIPT }} />
+        {/* And for the four-colour deck: the suit ink class before first paint,
+            or a reload deals the hand in the old colours and then recolours it. */}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, self-authored boot script */}
+        <script dangerouslySetInnerHTML={{ __html: FOUR_COLOUR_DECK_BOOT_SCRIPT }} />
         <SorbTokens>
           <ThemeProvider>
             <TextScaleProvider>{children}</TextScaleProvider>

@@ -15,6 +15,8 @@ import {
 import { useTheme } from '@/components/theme-provider'
 import { useTextScale } from '@/components/text-scale-provider'
 import { isTableRoute, TABLE_MAX_TEXT_SCALE, TEXT_SCALES, textScaleLabel } from '@/lib/textScale'
+import { useFourColourDeck } from '@/lib/fourColourDeck'
+import { isEnabled } from '@/lib/flags'
 import { useProfile } from '@/store/profile'
 import { useSync } from '@/store/sync'
 import { sound } from '@/lib/sound'
@@ -43,6 +45,7 @@ export function SettingsDialog({
 
         <div className="flex min-w-0 flex-col gap-6 pt-1">
           <AppearanceSection />
+          <FourColourDeckSection />
           <TextSizeSection />
           <SoundSection />
           <HapticsSection />
@@ -95,6 +98,11 @@ function ToggleRow({
         onClick={onChange}
         className={cn(
           'relative h-6 w-10 shrink-0 rounded-full transition',
+          // The switch draws at 24px because that is the look; the target it
+          // answers to is 44px, which is the floor. A centred pseudo-element
+          // rather than padding, so nothing in the row moves.
+          "after:absolute after:left-1/2 after:top-1/2 after:size-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']",
+          'outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
           checked ? 'bg-primary' : 'bg-foreground/15',
         )}
       >
@@ -122,6 +130,31 @@ function AppearanceSection() {
       onChange={() => {
         sound.play('tap')
         setTheme(isDark ? 'light' : 'dark')
+      }}
+    />
+  )
+}
+
+/**
+ * The four-colour deck: diamonds blue, clubs green, so the two black suits stop
+ * being the same glance. A plain on/off row with no preview — the result is the
+ * table, and it is one tap away.
+ *
+ * Behind the `four-colour-deck` flag, off in both environments until a human
+ * turns it on. The setting itself is per device (lib/fourColourDeck.ts); the
+ * Chip Shop's four-colour FACE is a separate, bought thing and is left alone.
+ */
+function FourColourDeckSection() {
+  const [on, setOn] = useFourColourDeck()
+  if (!isEnabled('four-colour-deck')) return null
+  return (
+    <ToggleRow
+      label="Four-colour deck"
+      hint="Diamonds blue, clubs green. Hearts and spades stay as they are."
+      checked={on}
+      onChange={() => {
+        sound.play('tap')
+        setOn(!on)
       }}
     />
   )
