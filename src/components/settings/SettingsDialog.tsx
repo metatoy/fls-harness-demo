@@ -15,6 +15,9 @@ import {
 import { useTheme } from '@/components/theme-provider'
 import { useTextScale } from '@/components/text-scale-provider'
 import { isTableRoute, TABLE_MAX_TEXT_SCALE, TEXT_SCALES, textScaleLabel } from '@/lib/textScale'
+import { isEnabled } from '@/lib/flags'
+import { suitInk } from '@/lib/deckColors'
+import { SUITS, SUIT_GLYPH } from '@/lib/poker/cards'
 import { useProfile } from '@/store/profile'
 import { useSync } from '@/store/sync'
 import { sound } from '@/lib/sound'
@@ -43,6 +46,7 @@ export function SettingsDialog({
 
         <div className="flex min-w-0 flex-col gap-6 pt-1">
           <AppearanceSection />
+          <CardDisplaySection />
           <TextSizeSection />
           <SoundSection />
           <HapticsSection />
@@ -95,6 +99,12 @@ function ToggleRow({
         onClick={onChange}
         className={cn(
           'relative h-6 w-10 shrink-0 rounded-full transition',
+          // The switch is drawn at 24px because that is what a switch looks
+          // like; the thing you hit is the pseudo-element, 44px tall and wider
+          // than the track, so the target meets the floor without the control
+          // growing. Focus stays visible on the track itself.
+          "after:absolute after:-inset-x-1 after:-inset-y-2.5 after:content-['']",
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
           checked ? 'bg-primary' : 'bg-foreground/15',
         )}
       >
@@ -105,6 +115,57 @@ function ToggleRow({
           )}
         />
       </button>
+    </div>
+  )
+}
+
+/**
+ * Card display: the four-colour deck (lib/deckColors).
+ *
+ * Off by default, and it stays a display setting rather than a read: it changes
+ * what the ink of a suit looks like to the player who turned it on, and nothing
+ * about what any seat knows inside a hand. Everyone at the table sees the same
+ * cards — this only makes the four suits easier to tell apart at a glance.
+ *
+ * Behind `four-colour-deck` in flags.json until a human turns it on. The switch
+ * writes straight to the profile store, which every PlayingCard subscribes to,
+ * so the cards already dealt change under it — there is nothing to save.
+ */
+function CardDisplaySection() {
+  const fourColour = useProfile((s) => s.fourColourDeck)
+  const setFourColour = useProfile((s) => s.setFourColourDeck)
+  if (!isEnabled('four-colour-deck')) return null
+  return (
+    <div className="flex flex-col gap-2.5">
+      <p className="text-2xs font-medium uppercase tracking-wide text-muted-foreground">
+        Card display
+      </p>
+      <ToggleRow
+        label="Four-colour deck"
+        // The colours are named, so the row says what it does to a reader who
+        // cannot see the preview — and to one looking at it in greyscale.
+        hint="Spades black, hearts red, diamonds blue, clubs green."
+        checked={fourColour}
+        onChange={() => {
+          sound.play('tap')
+          setFourColour(!fourColour)
+        }}
+      />
+      {/* Decorative: it repeats the hint above in colour, so it is hidden from
+          assistive tech rather than read out as four bare glyphs. Drawn on the
+          card ground, because that is the only surface these inks appear on —
+          on the dialog's own ground the black suits would be a lie in dark
+          mode. */}
+      <p
+        aria-hidden
+        className="flex justify-center gap-4 rounded-lg bg-cardface py-2 text-2xl leading-none"
+      >
+        {SUITS.map((suit) => (
+          <span key={suit} className={suitInk(suit, fourColour)}>
+            {SUIT_GLYPH[suit]}
+          </span>
+        ))}
+      </p>
     </div>
   )
 }

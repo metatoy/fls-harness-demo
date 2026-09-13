@@ -147,6 +147,11 @@ export interface ProfileState {
   handCoaching: boolean
   /** Short vibration on the physical moments (see lib/haptics). Off by default. */
   haptics: boolean
+  /**
+   * Diamonds blue and clubs green on every card face (see lib/deckColors). Off
+   * by default — the two-colour deck is what a player arrives knowing.
+   */
+  fourColourDeck: boolean
   /** The most recent Daily Deal played (only today's gates anything). */
   daily: DailyRecord | null
   /** Chip Shop purchases (item ids). Style, never edge — see docs/shop.md. */
@@ -219,6 +224,7 @@ export interface ProfileState {
   setTableTalk: (value: boolean) => void
   setHandCoaching: (value: boolean) => void
   setHaptics: (value: boolean) => void
+  setFourColourDeck: (value: boolean) => void
   /** Buy a Chip Shop item: deducts the price, records ownership. No-op if owned or short. */
   buyItem: (id: string, price: number) => void
   setDeckFace: (id: string) => void
@@ -249,7 +255,7 @@ export interface ProfileState {
   reset: () => void
 }
 
-export const PERSIST_VERSION = 17
+export const PERSIST_VERSION = 18
 const PERSIST_KEY = 'pip.profile'
 
 /** A kind you have never answered a spot from. */
@@ -280,6 +286,7 @@ export const useProfile = create<ProfileState>()(
       tableTalk: true,
       handCoaching: true,
       haptics: false,
+      fourColourDeck: false,
       daily: null,
       owned: [],
       deckFace: 'classic',
@@ -378,6 +385,7 @@ export const useProfile = create<ProfileState>()(
       setTableTalk: (value) => set({ tableTalk: value }),
       setHandCoaching: (value) => set({ handCoaching: value }),
       setHaptics: (value) => set({ haptics: value }),
+      setFourColourDeck: (value) => set({ fourColourDeck: value }),
       buyItem: (id, price) =>
         set((s) => {
           // Spending never moves peakRoll — rank is about winnings, not thrift.
@@ -460,6 +468,7 @@ export const useProfile = create<ProfileState>()(
           tableTalk: true,
           handCoaching: true,
           haptics: false,
+          fourColourDeck: false,
           daily: null,
           owned: [],
           deckFace: 'classic',
@@ -573,6 +582,11 @@ export function migrateProfile(persisted: unknown, fromVersion: number): Profile
   // another device). Null reads as "unclaimed" rather than "not yours", so
   // their tournament survives and the resume path claims it on the way in.
   if (fromVersion < 17) s.escrow = null
+  // v17 -> v18: the four-colour deck setting. Off for everyone, including a
+  // player who bought the Chip Shop's Four-Colour face: that purchase is still
+  // what draws their cards (lib/deckColors reads both), so seeding this from it
+  // would only make turning the setting off look broken.
+  if (fromVersion < 18) s.fourColourDeck = false
   return s
 }
 

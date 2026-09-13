@@ -1,24 +1,11 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import type { Card, Suit } from '@/lib/poker/cards'
-import { SUIT_GLYPH, isRed } from '@/lib/poker/cards'
+import type { Card } from '@/lib/poker/cards'
+import { SUIT_GLYPH } from '@/lib/poker/cards'
+import { isFourColour, suitInk } from '@/lib/deckColors'
 import { useProfile } from '@/store/profile'
 import { cn } from '@/lib/utils'
-
-// The four-colour deck (a Chip Shop purchase): hearts red, spades black,
-// diamonds blue, clubs green — the poker-room standard for misreading nothing.
-const FOUR_COLOUR_INK: Record<Suit, string> = {
-  h: 'text-suit-red',
-  s: 'text-cardface-ink',
-  d: 'text-suit-blue',
-  c: 'text-suit-green',
-}
-
-function inkFor(suit: Suit, deckFace: string): string {
-  if (deckFace === 'face-fourcolor') return FOUR_COLOUR_INK[suit]
-  return isRed(suit) ? 'text-suit-red' : 'text-cardface-ink'
-}
 
 // Ten displays as "10" on the face; the engine keeps 'T' internally.
 const rankLabel = (rank: string): string => (rank === 'T' ? '10' : rank)
@@ -91,6 +78,9 @@ export function PlayingCard({
   const s = SIZES[size]
   const hidden = faceDown || !card
   const deckFace = useProfile((st) => st.deckFace)
+  // Subscribed rather than read once, which is what makes the setting land on
+  // the cards already on the table the moment it is switched.
+  const fourColourDeck = useProfile((st) => st.fourColourDeck)
   // The High-Contrast deck: same colours, ink like it means it.
   const contrast = deckFace === 'face-contrast'
 
@@ -110,7 +100,7 @@ export function PlayingCard({
     )
   }
 
-  const ink = inkFor(card.suit, deckFace)
+  const ink = suitInk(card.suit, isFourColour(fourColourDeck, deckFace))
 
   // Tiny cards (showdown reveal) read better as a centred, compact index than
   // the spread top/bottom layout used at larger sizes.
