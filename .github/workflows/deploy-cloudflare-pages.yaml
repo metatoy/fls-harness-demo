@@ -16,6 +16,23 @@ permissions:
 
 jobs:
   build-and-deploy:
+    # THIS FORK MUST NEVER RUN UPSTREAM'S RELEASE. The steps below deploy to
+    # `--project-name=pip-web`, which is the REAL Pip product's Cloudflare Pages
+    # project, then push a version bump to main and cut a GitHub Release.
+    #
+    # This repository is a fork used as the vessel for a build-pipeline
+    # demonstration. Its own README says it plainly: "It is not affiliated with
+    # Pip or playpip.io, and nothing here is deployed there."
+    #
+    # Until now the only thing stopping it was a missing secret — the run died at
+    # "Mint the release token" with `appId option is required`, three seconds in,
+    # on every push to main, mailing a failure each time. That failure WAS the
+    # safety net, which means the obvious fix (add the secrets) is the dangerous
+    # one: it would publish a fork's code to somebody else's production.
+    #
+    # A guard says the thing the missing secret was only implying, and it keeps
+    # the file identical to upstream's otherwise, so merges stay clean.
+    if: github.repository == 'playpip/pip-web'
     runs-on: ubuntu-latest
 
     steps:
