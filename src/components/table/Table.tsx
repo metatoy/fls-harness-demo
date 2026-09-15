@@ -20,6 +20,7 @@ import { ReactionDock, ReactionSlot, useHeroReaction } from './Reactions'
 import { RunRecap } from './RunRecap'
 import { isEnabled } from '@/lib/flags'
 import { stackDepth } from '@/lib/stackDepth'
+import type { ReadLabel } from '@/lib/liveRead'
 import { botReaction, type Outcome } from '@/lib/reactions'
 import { useGame } from '@/store/game'
 import { useProfile } from '@/store/profile'
@@ -73,6 +74,7 @@ export function Table() {
     lastBounty,
     lastRead,
     seatStats,
+    liveReads,
     recap,
     talk,
     cashInvested,
@@ -93,6 +95,7 @@ export function Table() {
   const [viewId, setViewId] = useState<string | null>(null)
   const hasHistory = useGame((s) => s.lastHand !== null)
   const reactionsOn = isEnabled('table-reactions')
+  const readsOn = isEnabled('live-opponent-reads')
   const { fired, fire } = useHeroReaction()
 
   const metaById = useMemo(() => new Map(seats.map((s) => [s.id, s])), [seats])
@@ -134,6 +137,17 @@ export function Table() {
     const reaction = botReaction(p.id, handIndex, outcome)
     return <ReactionSlot fired={reaction ? { reaction, seq: handIndex } : null} />
   }
+
+  /**
+   * An opponent's live read: the phrase, or `null` for a seat with nothing to say (it has only
+   * posted a blind, or it has folded — the store drops a seat from the map the moment it folds),
+   * or `undefined` when the flag is off and the row should not exist at all.
+   *
+   * The phrase is the store's: it is worked out as the action happens, so what a seat says at
+   * showdown is the last thing it had to say, not a fresh guess at a finished hand.
+   */
+  const readFor = (id: string): ReadLabel | null | undefined =>
+    readsOn ? (liveReads[id] ?? null) : undefined
 
   /* The player's own dock, under their own seat. The slot above it is where their reaction
      lands, so every reaction on the table — theirs and the opponents' — is attributed by the
@@ -308,6 +322,7 @@ export function Table() {
                     cardsSide="right"
                     onSelect={() => selectSeat(p.id)}
                     reactionSlot={botSlot(p)}
+                    read={readFor(p.id)}
                   />
                 )
               })}
@@ -394,6 +409,7 @@ export function Table() {
                     cardsSide={parseFloat(positions[i].left) > 50 ? 'left' : 'right'}
                     onSelect={() => selectSeat(p.id)}
                     reactionSlot={botSlot(p)}
+                    read={readFor(p.id)}
                   />
                 </div>
               )
@@ -612,6 +628,7 @@ function Seat({
   onSelect,
   layout = 'arc',
   reactionSlot,
+  read,
 }: {
   player: Player
   name: string
@@ -625,6 +642,9 @@ function Seat({
   layout?: 'arc' | 'row'
   /** The seat's reaction, in its own reserved row above the portrait. Null when the flag is off. */
   reactionSlot?: React.ReactNode
+  /** One phrase guessing at the seat's holding, from this hand's action alone. `null` is silence
+   *  with the row still reserved; `undefined` is the flag being off, and no row at all. */
+  read?: ReadLabel | null
 }) {
   const folded = player.status === 'folded'
   const money = useMoney()
@@ -729,6 +749,21 @@ function Seat({
           </span>
         )}
       </span>
+      {/* The read, under the action, inside the seat box — so it folds, freezes and clears with
+          the seat rather than beside it. Words only and muted: this is a guess about a hand, not
+          a state of the clock, so it must not borrow the emphasis the turn indicator owns. The
+          row is reserved the way the bet chip above it is, so a read appearing or clearing never
+          changes the seat's height. */}
+      {read !== undefined && (
+        <span
+          className={cn(
+            'flex h-[13px] max-w-full items-center justify-center truncate text-3xs leading-none',
+            folded ? 'text-muted-foreground/50' : 'text-muted-foreground',
+          )}
+        >
+          {read}
+        </span>
+      )}
 
       {/* row: revealed cards below the seat */}
       {row && reveal && player.hole.length === 2 && (
