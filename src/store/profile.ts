@@ -8,6 +8,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { AvatarSpec } from '@/lib/avatar'
 import { emptySeatStats, type SeatStats } from '@/lib/reads'
+import { SESSION_LOG_CAP } from '@/lib/weakSpot'
 import { STARTING_ROLL } from '@/config/venues'
 import { DEFAULT_CARD_BACK, nearestCardBack } from '@/config/cardBacks'
 import { STARTING_RATING, nextRating } from '@/lib/drills/rating'
@@ -133,6 +134,13 @@ export interface ProfileState {
   venueRecords: Record<string, VenueRecord>
   /** Lifetime tendencies of the hero — feeds the play-style chart on /stats. */
   tendencies: SeatStats
+  /**
+   * The hero's tendencies per finished run, oldest first — the session log the weak spot reads
+   * (lib/weakSpot). The lifetime totals above cannot answer "what has changed lately?", because a
+   * sum has no shape; this keeps one row per run and nothing else, capped at a window plus its
+   * baseline so the save does not grow with play.
+   */
+  sessions: SeatStats[]
   /** Chosen face-down card design (a curated id — see config/cardBacks). */
   cardBack: string
   /** Earned award chips: id → epoch ms earned (see lib/awards). */
@@ -230,6 +238,8 @@ export interface ProfileState {
   mergeStats: (partial: Partial<LifetimeStats>) => void
   /** Add a hand's worth of hero tendencies onto the lifetime totals. */
   mergeTendencies: (delta: Partial<SeatStats>) => void
+  /** File one finished run's hero tendencies as a session (see lib/weakSpot). */
+  recordSession: (stats: SeatStats) => void
   /** Sample the current Roll onto the history graph. */
   recordRollPoint: () => void
   recordVenueEntry: (venueId: string) => void
@@ -249,7 +259,7 @@ export interface ProfileState {
   reset: () => void
 }
 
-export const PERSIST_VERSION = 17
+export const PERSIST_VERSION = 18
 const PERSIST_KEY = 'pip.profile'
 
 /** A kind you have never answered a spot from. */
@@ -273,6 +283,7 @@ export const useProfile = create<ProfileState>()(
       rollHistory: [],
       venueRecords: {},
       tendencies: emptySeatStats(),
+      sessions: [],
       cardBack: DEFAULT_CARD_BACK.id,
       awards: {},
       cameFromFreeroll: false,
@@ -392,6 +403,8 @@ export const useProfile = create<ProfileState>()(
       mergeStats: (partial) =>
         set((s) => ({ stats: { ...s.stats, ...mergeStatValues(s.stats, partial) } })),
       mergeTendencies: (delta) => set((s) => ({ tendencies: addTendencies(s.tendencies, delta) })),
+      recordSession: (stats) =>
+        set((s) => ({ sessions: [...s.sessions, stats].slice(-SESSION_LOG_CAP) })),
       recordRollPoint: () =>
         set((s) => ({
           rollHistory: [...s.rollHistory, { t: Date.now(), roll: s.roll }].slice(-ROLL_HISTORY_CAP),
@@ -453,6 +466,7 @@ export const useProfile = create<ProfileState>()(
           rollHistory: [],
           venueRecords: {},
           tendencies: emptySeatStats(),
+          sessions: [],
           cardBack: DEFAULT_CARD_BACK.id,
           awards: {},
           cameFromFreeroll: false,
@@ -573,6 +587,11 @@ export function migrateProfile(persisted: unknown, fromVersion: number): Profile
   // another device). Null reads as "unclaimed" rather than "not yours", so
   // their tournament survives and the resume path claims it on the way in.
   if (fromVersion < 17) s.escrow = null
+  // v17 -> v18: the session log behind the weak spot. Empty for everyone: the lifetime totals
+  // are a sum and cannot be cut back into the runs that made them, so an existing player starts
+  // this log here and the card waits for five runs rather than naming a weakness out of
+  // arithmetic nobody performed.
+  if (fromVersion < 18) s.sessions = []
   return s
 }
 
