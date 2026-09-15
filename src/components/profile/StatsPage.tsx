@@ -7,7 +7,9 @@ import { RollGraph } from '@/components/RollGraph'
 import { CountUp } from '@/components/CountUp'
 import { PlayStyleChart } from './PlayStyleChart'
 import { RankLadder } from './RankLadder'
+import { WeakSpotCard } from './WeakSpotCard'
 import { useProfile } from '@/store/profile'
+import { isEnabled } from '@/lib/flags'
 import { VENUES, SIDE_TABLES, KITCHEN_TABLE } from '@/config/venues'
 import { DRILL_KINDS } from '@/config/drills'
 import type { DrillKindId } from '@/lib/drills/types'
@@ -23,8 +25,18 @@ const ALL_VENUES = [...VENUES, ...SIDE_TABLES, KITCHEN_TABLE]
 
 /** Lifetime stats — a full-page bento, the play-style quadrant at its centre. */
 export function StatsPage() {
-  const { name, avatar, roll, peakRoll, stats, rollHistory, venueRecords, tendencies, drills } =
-    useProfile()
+  const {
+    name,
+    avatar,
+    roll,
+    peakRoll,
+    stats,
+    rollHistory,
+    venueRecords,
+    tendencies,
+    drills,
+    sessions,
+  } = useProfile()
   const money = useMoney()
 
   const style = derivePlayStyle(tendencies)
@@ -84,6 +96,9 @@ export function StatsPage() {
           />
         </div>
       </motion.header>
+
+      {/* One thing to practise, before any of the numbers it was read off. */}
+      {isEnabled('weak-spot') && <WeakSpotCard sessions={sessions} />}
 
       {/* the ladder — reads straight on from the Peak Roll above it */}
       <motion.section

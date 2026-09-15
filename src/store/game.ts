@@ -946,6 +946,11 @@ export const useGame = create<GameState>((set, get) => {
   function makeRecap(venue: Venue, place: number, bestFinishBefore: number | null): Recap {
     const profile = useProfile.getState() // re-read: the prize has just landed
     const runStats = seatStatsLive[HUMAN_ID] ?? emptySeatStats()
+    // The one thing here that is persisted: this run filed as a session, for the weak spot on
+    // /stats (lib/weakSpot). It is recorded whatever the flag says, because a log that only
+    // starts when somebody flips a surface on would make the card wait five more runs after the
+    // decision to show it; nothing reads the log until the flag is on.
+    useProfile.getState().recordSession(runStats)
     return buildRecap({
       venueName: venue.name,
       place,

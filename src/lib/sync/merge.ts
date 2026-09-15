@@ -109,6 +109,11 @@ export function mergeProfiles(local: ProfileData, remote: ProfileData, side: Sid
     haptics: winner.haptics,
     cameFromFreeroll: winner.cameFromFreeroll,
 
+    // The session log behind the weak spot follows the chosen side rather than merging. The rows
+    // carry no timestamps, so two devices' runs cannot be put back in order, and interleaving them
+    // would invent a sequence the stickiness rule then reads as history.
+    sessions: winner.sessions,
+
     // The Daily is once per UTC day and abandoning counts as played, so the
     // record that says "played today" has to win or syncing becomes a re-roll.
     daily: mergeDaily(local.daily, remote.daily),
@@ -353,6 +358,7 @@ function pickUnhandled(winner: ProfileData, loser: ProfileData): Partial<Profile
     'roll',
     'stats',
     'tendencies',
+    'sessions',
     'peakRoll',
     'awards',
     'owned',
