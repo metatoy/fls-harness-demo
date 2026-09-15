@@ -18,6 +18,13 @@ import { freerollOpen, type Venue } from '@/config/venues'
 import { detectAwards, type AwardDef } from '@/lib/awards'
 import { challengerFor, isChallengeTable } from '@/lib/challenge'
 import { emptySeatStats, type SeatStats } from '@/lib/reads'
+import {
+  emptyReadSignal,
+  labels as readLabels,
+  observe as observeRead,
+  type ReadLabel,
+  type ReadSignal,
+} from '@/lib/liveRead'
 import { heroDecision, readHand, type HandRead, type HeroDecision } from '@/lib/coach'
 import { buildRecap, type Recap } from '@/lib/recap'
 import { deviceId } from '@/lib/sync/client'
@@ -150,6 +157,11 @@ interface GameState {
   lastBounty: number
   /** Observed tendencies per seat this tournament (feeds the reads in the player dialog). */
   seatStats: Record<string, SeatStats>
+  /**
+   * One phrase per bot seat, guessing at its holding from this hand's action alone (lib/liveRead).
+   * Seats that have not acted, and seats that have folded, are absent.
+   */
+  liveReads: Record<string, ReadLabel>
   /**
    * The recap of the run that just ended, or null at every other moment.
    * Tournaments only: a cash table has no finish and no run to sum up.
@@ -398,6 +410,20 @@ function maybeTalk(
 /** Who has voluntarily put chips in this hand already (VPIP counts once per hand). */
 let vpipThisHand = new Set<string>()
 
+/**
+ * The live opponent reads for the hand in progress (see lib/liveRead).
+ *
+ * Kept here beside the other per-hand counters rather than derived in the render path, because
+ * the sizing half of a read needs the pot as it was BEFORE the chips went in — a number that only
+ * exists at the moment the action is applied. The bots only: no read is ever taken on the human,
+ * so the hero never gets an entry to begin with.
+ *
+ * Both are reset on the deal and on nothing else, which is what freezes the last phrase through
+ * showdown and clears it when the next hand starts.
+ */
+let readSignalsLive: Record<string, ReadSignal> = {}
+let liveReadsLive: Record<string, ReadLabel> = {}
+
 const statsFor = (id: string): SeatStats => (seatStatsLive[id] ??= emptySeatStats())
 
 /** Record one action (and any board cards it dealt) into the running timeline. */
@@ -434,6 +460,20 @@ function recordStep(prev: HandState, action: Action, next: HandState) {
     if (voluntary && !vpipThisHand.has(actor.id)) {
       vpipThisHand.add(actor.id)
       stats.vpipHands++
+    }
+
+    // The live read on this seat. Chips in is the difference the action actually made, and the
+    // pot is the one it went into — both taken from the states either side of it, so neither can
+    // be rebuilt wrongly later.
+    if (actor.id !== HUMAN_ID) {
+      const after = next.players.find((p) => p.id === actor.id)
+      readSignalsLive[actor.id] = observeRead(readSignalsLive[actor.id] ?? emptyReadSignal(), {
+        street: prev.street,
+        type: action.type,
+        chipsIn: (after?.committedThisHand ?? 0) - actor.committedThisHand,
+        potBefore: potSize(prev),
+      })
+      liveReadsLive = readLabels(readSignalsLive, next.community)
     }
   }
   const dealt = next.community.length - prev.community.length
@@ -521,6 +561,10 @@ export const useGame = create<GameState>((set, get) => {
     trackOnce('first-hand')
     currentEvents = []
     vpipThisHand = new Set()
+    // The deal is the only thing that clears a read: the last phrase of the previous hand stood
+    // through its showdown and stops here.
+    readSignalsLive = {}
+    liveReadsLive = {}
     for (const c of configs) statsFor(c.id).handsDealt++
     set({
       hand,
@@ -529,6 +573,7 @@ export const useGame = create<GameState>((set, get) => {
       lastBounty: 0,
       talk: null,
       seatStats: { ...seatStatsLive },
+      liveReads: {},
       buttonSeatId: configs[buttonIndex].id,
       smallBlind: blinds.smallBlind,
       bigBlind: blinds.bigBlind,
@@ -574,7 +619,7 @@ export const useGame = create<GameState>((set, get) => {
       playActionSound(action, cur)
       const next = applyAction(cur, action)
       recordStep(cur, action, next)
-      set({ hand: next })
+      set({ hand: next, liveReads: liveReadsLive })
       saveLiveHand()
       progress()
     }, delay)
@@ -982,6 +1027,7 @@ export const useGame = create<GameState>((set, get) => {
     newAwards: [],
     lastBounty: 0,
     seatStats: {},
+    liveReads: {},
     recap: null,
     talk: null,
     cashInvested: 0,
@@ -1072,6 +1118,7 @@ export const useGame = create<GameState>((set, get) => {
         newAwards: [],
         lastBounty: 0,
         seatStats: {},
+        liveReads: {},
         recap: null,
         talk: null,
         cashInvested: venue.buyIn,
@@ -1131,6 +1178,11 @@ export const useGame = create<GameState>((set, get) => {
       // `snapshot.handIndex` is the index the hand was dealt at, which is what
       // seeds both the deck and the AI stream.
       armDailyHand(snapshot.handIndex, live.aiDraws)
+      // The snapshot does not carry the reads, so a resumed hand starts silent and speaks again
+      // from its next action. Clearing rather than keeping is the point: a stale phrase from the
+      // table this tab was on before would be a read of a hand nobody played.
+      readSignalsLive = {}
+      liveReadsLive = {}
       set({
         hand: live.hand,
         buttonSeatId: snapshot.buttonSeatId,
@@ -1139,6 +1191,7 @@ export const useGame = create<GameState>((set, get) => {
         bigBlind: live.hand.bigBlind,
         blindLevel: live.blindLevel,
         seatStats: { ...seatStatsLive },
+        liveReads: {},
       })
       progress()
     },
@@ -1156,7 +1209,7 @@ export const useGame = create<GameState>((set, get) => {
       }
       const next = applyAction(hand, action)
       recordStep(hand, action, next)
-      set({ hand: next, heroEquity: null })
+      set({ hand: next, heroEquity: null, liveReads: liveReadsLive })
       saveLiveHand()
       progress()
     },
@@ -1207,6 +1260,7 @@ export const useGame = create<GameState>((set, get) => {
         newAwards: [],
         lastBounty: 0,
         seatStats: {},
+        liveReads: {},
         recap: null,
         talk: null,
         cashInvested: 0,
