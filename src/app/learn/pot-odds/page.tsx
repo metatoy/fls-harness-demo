@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { GuideLink, GuidePage, GuideTable, Lead, TryIt } from '@/components/learn/Guide'
+import { SecondSpot } from '@/components/learn/SecondSpot'
 import { ThePrice } from '@/components/learn/ThePrice'
 import { WhatItCosts } from '@/components/learn/WhatItCosts'
 import { Section } from '@/components/marketing/LegalPage'
@@ -198,6 +199,7 @@ export default function PotOddsGuide() {
           It is implied odds, below.
         </p>
         <ThePrice />
+        <SecondSpot />
       </Section>
 
       <Section title="Outs are an estimate, and here is how wrong they get">
