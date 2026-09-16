@@ -350,3 +350,54 @@ export const WORKED_SPOTS: readonly WorkedSpot[] = [
     note: 'A gutshot needs a bet under about a tenth of the pot before the immediate price works. It almost never is.',
   },
 ]
+
+/**
+ * A worked spot priced in chips rather than as a fraction of a pot of 100.
+ * The pot is the pot before the bet, the bet is what they bet, and the call is
+ * the same number as the bet — which is the whole reason the required equity is
+ * `call / (pot + bet + call)` and not `call / pot`.
+ */
+export interface ChipSpot {
+  /** The pot before they bet. */
+  pot: number
+  /** What they bet, in chips. Your call is this number. */
+  bet: number
+  /** Hole cards and flop, as "Jh"/"9s" strings. */
+  hero: readonly string[]
+  flop: readonly string[]
+  /** Outs, and the words the guide counts them in. */
+  outs: number
+  outsLabel: string
+}
+
+/**
+ * The guide's second worked spot, which is the first one's twin and comes out
+ * the other way. Different stakes, a pot-sized bet instead of a half-pot one,
+ * and a gutshot instead of a flush draw, so a reader who followed the first
+ * spot to a call sees the same six steps land on a fold.
+ *
+ * The cards are the ones WORKED_SPOTS already carries under `gutshot`, so the
+ * four outs on this board are the count tests/guideClaims.test.ts enumerates
+ * card by card. Only the money is this spot's own: the price a pot-sized bet
+ * sets is requiredEquity(bet / pot), and nothing here is typed as a percentage.
+ */
+const GUTSHOT = WORKED_SPOTS.find((spot) => spot.id === 'gutshot')!
+
+export const SECOND_SPOT: ChipSpot = {
+  pot: 240,
+  bet: 240,
+  hero: GUTSHOT.hero,
+  flop: GUTSHOT.flop,
+  outs: GUTSHOT.outs,
+  outsLabel: GUTSHOT.outsLabel,
+}
+
+/**
+ * The rule of 2: outs times two is roughly the chance of getting there on the
+ * next card, which is the one street a single bet buys. The same shortcut the
+ * outs section teaches, as a function, so a spot cannot show the multiplication
+ * and then print a different answer beside it.
+ */
+export function ruleOfTwo(outs: number): number {
+  return outs * 2
+}
