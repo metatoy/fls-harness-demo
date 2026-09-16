@@ -80,6 +80,7 @@ export function Table() {
     cashInvested,
     nextHand,
     rebuy,
+    endSitting,
     leave,
   } = useGame()
   const cardBack = cardBackById(useProfile((s) => s.cardBack))
@@ -166,7 +167,11 @@ export function Table() {
   const cashOutAndLeave = () => {
     // `cashOutValue` handles the freeroll (the stack is the house's, so it pays
     // nothing) and the two venues whose table stack isn't the buy-in.
-    if (hero) adjustRoll(cashOutValue(venue, hero.stack))
+    const cashOut = hero ? cashOutValue(venue, hero.stack) : 0
+    // The seat is being forfeited, so the sitting is filed for the lobby to report (lib/sitting).
+    // A no-op away from a cash table: a tournament reports itself as it ends.
+    endSitting(cashOut)
+    if (hero) adjustRoll(cashOut)
     useProfile.getState().recordRollPoint()
     goHome()
   }

@@ -27,6 +27,7 @@ import {
 } from '@/lib/liveRead'
 import { heroDecision, readHand, type HandRead, type HeroDecision } from '@/lib/coach'
 import { buildRecap, type Recap } from '@/lib/recap'
+import { clearSitting, saveSitting } from '@/lib/sitting'
 import { deviceId } from '@/lib/sync/client'
 import { type Escrow, tableIsBacked } from '@/lib/sync/escrow'
 import {
@@ -181,6 +182,13 @@ interface GameState {
   nextHand: () => void
   /** Cash tables only: buy a fresh stack after busting and deal on. */
   rebuy: () => void
+  /**
+   * Cash tables only: the seat is being forfeited, so file the sitting's recap (lib/sitting).
+   * Called with what the stack is worth in Roll chips, immediately before `leave`. It writes
+   * rather than shows, which is what lets a sitting that ended with nobody watching still be
+   * reported: the screen is delivered on the next visit to the lobby.
+   */
+  endSitting: (cashOut: number) => void
   leave: () => void
 }
 
@@ -855,10 +863,25 @@ export const useGame = create<GameState>((set, get) => {
     )
     const newAwards = grantEarnedAwards(hand, venue, heroWon, false, false, 0)
 
+    // The sitting's own highlight, tallied where it happens. One line rather than the
+    // tournament's three: a cash table has no knockouts to name, because a busted opponent
+    // simply rebuys.
+    if (heroWon && pot > runTally.biggestPot) runTally.biggestPot = pot
+
     if (!humanAlive) {
       clearTimers()
       // Nothing to resume — the buy-in is spent; a refresh re-seats fresh.
       clearTableSnapshot()
+      // So the sitting is filed here rather than waiting for the stand-up: with no snapshot to
+      // resume from, a player who closes the tab on a busted stack has forfeited the seat and is
+      // still owed the recap. Buying back in is a continuation, and `rebuy` takes it away again.
+      saveSitting({
+        venueName: venue.name,
+        hands: get().handIndex,
+        biggestPot: runTally.biggestPot,
+        invested: get().cashInvested,
+        cashOut: 0,
+      })
       useProfile.getState().recordRollPoint()
       set({
         seats: rebought,
@@ -893,6 +916,9 @@ export const useGame = create<GameState>((set, get) => {
       handIndex: get().handIndex,
       heroLow: heroLowTide,
       cashInvested: get().cashInvested,
+      // The sitting's tally rides along, so picking the same seat back up after a refresh or a
+      // dead connection continues the sitting rather than starting a second one.
+      run: { ...runTally },
     })
     set({
       seats: rebought,
@@ -1228,6 +1254,9 @@ export const useGame = create<GameState>((set, get) => {
       if (profile.roll < venue.buyIn) return
       clearTimers()
       const tableStack = venue.startingStack ?? venue.buyIn
+      // Sitting back down in the same seat continues the sitting, so the recap filed when the
+      // stack went to zero is withdrawn: one sitting, one recap, at the end of it.
+      clearSitting()
       profile.adjustRoll(-venue.buyIn) // buy a fresh stack from the Roll
       const nextSeats = seats.map((s) => (s.isHuman ? { ...s, stack: tableStack } : s))
       heroLowTide = Math.min(heroLowTide, tableStack)
@@ -1240,6 +1269,21 @@ export const useGame = create<GameState>((set, get) => {
       })
       const live = nextSeats.filter((s) => s.stack > 0)
       dealHand(nextButtonSeatId(nextSeats, get().buttonSeatId, live))
+    },
+
+    endSitting: (cashOut) => {
+      const { venue, handIndex, cashInvested } = get()
+      if (!venue?.cash) return
+      // Zero hands is a real sitting with a real (zero) result, so nothing here is conditional on
+      // having played: the player who sat down and stood straight back up is owed the same
+      // arithmetic as the one who played all night.
+      saveSitting({
+        venueName: venue.name,
+        hands: handIndex,
+        biggestPot: runTally.biggestPot,
+        invested: cashInvested,
+        cashOut,
+      })
     },
 
     leave: () => {
