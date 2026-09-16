@@ -5,6 +5,7 @@
 import type { Card, Rank, Rng, Suit } from './cards'
 import { RANKS, SUITS } from './cards'
 import { determineWinners } from './handEval'
+import type { Combo } from './handRange'
 import { holeStrength } from './range'
 
 /** How many candidate holdings a maximally-tight opponent picks the best of. */
@@ -33,6 +34,13 @@ export interface EquityOptions {
    * fall back to random. Omit entirely to reproduce classic raw equity.
    */
   opponentSelectivity?: readonly number[]
+  /**
+   * A named holding for the FIRST opponent: the combinations they are allowed
+   * to have, already stripped of anything the hero's cards or the board block
+   * (see handRange.ts). Each iteration deals them one of these uniformly at
+   * random; the other opponents stay random. Omit for classic raw equity.
+   */
+  opponentCombos?: readonly Combo[]
 }
 
 function cardKey(c: Card): string {
@@ -131,6 +139,7 @@ export function estimateEquity(opts: EquityOptions): EquityResult {
   const boardNeeded = 5 - community.length
   const selectivity = opts.opponentSelectivity
   const ranged = !!selectivity && selectivity.some((s) => s > 0)
+  const named = opts.opponentCombos?.length ? opts.opponentCombos : null
 
   let wins = 0
   let ties = 0
@@ -142,7 +151,22 @@ export function estimateEquity(opts: EquityOptions): EquityResult {
     // opponent gets a uniformly random hand (classic raw equity).
     let oppHoles: Card[][]
     let board: Card[]
-    if (ranged) {
+    if (named) {
+      // The named opponent is dealt first, uniformly over their combinations,
+      // and the rest comes from what is left. First is what keeps the range
+      // uniform: drawing the board first would quietly reweight it towards the
+      // combinations that run-out happened not to block.
+      const combo = named[Math.floor(rng() * named.length)]
+      const dead = new Set(combo.map(cardKey))
+      const deck = base.filter((c) => !dead.has(cardKey(c)))
+      const need = (opponents - 1) * 2 + boardNeeded
+      const drawn = drawN(deck, need, rng)
+      oppHoles = [[combo[0], combo[1]]]
+      for (let o = 1; o < opponents; o++) {
+        oppHoles.push([drawn[(o - 1) * 2], drawn[(o - 1) * 2 + 1]])
+      }
+      board = [...community, ...drawn.slice((opponents - 1) * 2)]
+    } else if (ranged) {
       ;({ oppHoles, board } = drawRangedHoles(
         base,
         opponents,

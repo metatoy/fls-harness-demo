@@ -24,6 +24,7 @@
 import type { Card, Rng } from './cards'
 import { cardToString, createDeck } from './cards'
 import { estimateEquity } from './equity'
+import type { Combo } from './handRange'
 import { determineWinners } from './handEval'
 
 /** A table seats nine, so the hero can face eight. */
@@ -60,6 +61,12 @@ export interface OddsInput {
   /** 0, 3, 4 or 5 cards. Anything else is a half-dealt board. */
   community?: readonly Card[]
   opponents: number
+  /**
+   * What the first opponent is holding, if it was named: the surviving
+   * combinations of an exact hand or a range (handRange.ts). A named opponent
+   * always samples — see `canEnumerate` — so the answer carries a band.
+   */
+  opponentCombos?: readonly Combo[]
 }
 
 export interface OddsQuote {
@@ -119,6 +126,11 @@ export function exhaustiveShowdowns(input: OddsInput): number {
  * is two orders of magnitude past what a page can run while somebody waits.
  */
 export function canEnumerate(input: OddsInput): boolean {
+  // A named opponent samples, always. The exhaustive path deals the opponent
+  // every holding in turn, which is a different question from the one a named
+  // range asks, and teaching it the range would let "exact" appear over a run
+  // that is exact about the run-outs only.
+  if (input.opponentCombos?.length) return false
   return input.opponents === 1 && exhaustiveShowdowns(input) <= EXACT_MAX_SHOWDOWNS
 }
 
@@ -312,6 +324,7 @@ export function createOddsRunner(
         hole: input.hole,
         community: input.community,
         opponents: input.opponents,
+        opponentCombos: input.opponentCombos,
         iterations: want,
         rng,
       })
