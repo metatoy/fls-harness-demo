@@ -1,8 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { type CSSProperties, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { RotateCcw } from 'lucide-react'
+// The design system itself, not a copy of it (see table/Reactions.tsx): each .jsx source carries
+// its own CSS, which is the only way to use Night Shift here without loading night-shift/styles.css.
+import { Button as NightShiftButton } from '../../../design-system/night-shift/components/core/Button.jsx'
 import { SyncSection } from '@/components/settings/SyncSection'
 import { TransferDialog } from '@/components/settings/TransferDialog'
 import {
@@ -14,6 +17,8 @@ import {
 } from '@/components/ui/dialog'
 import { useTheme } from '@/components/theme-provider'
 import { useTextScale } from '@/components/text-scale-provider'
+import { actionRowOrder } from '@/lib/handedness'
+import { isEnabled } from '@/lib/flags'
 import { isTableRoute, TABLE_MAX_TEXT_SCALE, TEXT_SCALES, textScaleLabel } from '@/lib/textScale'
 import { useProfile } from '@/store/profile'
 import { useSync } from '@/store/sync'
@@ -46,6 +51,7 @@ export function SettingsDialog({
           <TextSizeSection />
           <SoundSection />
           <HapticsSection />
+          {isEnabled('left-handed-mode') && <LeftHandedSection />}
           <TableTalkSection />
           <HandCoachingSection />
           <TransferSection />
@@ -222,6 +228,81 @@ function SoundSection() {
     />
   )
 }
+
+/**
+ * Left-handed mode: the table's touch targets mirrored to a left thumb (lib/handedness).
+ *
+ * The switch carries a preview of the real action row underneath it, because the thing being
+ * chosen is a spatial arrangement and a sentence about one is slower to read than the row itself.
+ * It is drawn from `actionRowOrder`, the same function the table uses, so it cannot describe a
+ * layout the felt does not actually produce.
+ *
+ * The preview is `aria-hidden` and its buttons are inert: it is a picture of a control, not a
+ * control, and a screen reader meeting three dead buttons in Settings would be right to try them.
+ * Everything it shows is also said in the hint, so nothing here is carried by the picture alone.
+ */
+function LeftHandedSection() {
+  const leftHanded = useProfile((s) => s.leftHanded)
+  const setLeftHanded = useProfile((s) => s.setLeftHanded)
+  const hydrated = useHydrated()
+  // The stored value is not readable during the server render, so the row waits, like dark mode.
+  const on = hydrated && leftHanded
+  return (
+    <div>
+      <ToggleRow
+        label="Left-handed table"
+        hint={
+          on
+            ? 'The action row runs Raise, Call, Fold — Fold sits farthest from your left thumb. Takes effect on the next hand.'
+            : 'Mirror the table’s buttons for a left thumb. Fold always sits farthest from it. Takes effect on the next hand.'
+        }
+        checked={on}
+        onChange={() => {
+          sound.play('tap')
+          setLeftHanded(!leftHanded)
+        }}
+      />
+      <div
+        aria-hidden="true"
+        style={nightShiftPalette}
+        className="mt-2.5 flex gap-1.5 rounded-xl bg-foreground/[0.06] p-2"
+      >
+        {actionRowOrder(['fold', 'check-call', 'bet-raise'], on).map((key) => (
+          <NightShiftButton
+            key={key}
+            disabled
+            variant={key === 'fold' ? 'fold' : 'quiet'}
+            style={{ flex: 1 }}
+          >
+            {PREVIEW_LABELS[key]}
+          </NightShiftButton>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** The bar as it reads at the table: what happens, and what it costs. */
+const PREVIEW_LABELS: Record<string, string> = {
+  fold: 'Fold',
+  'check-call': 'Call 4,000',
+  'bet-raise': 'Raise 8,000',
+}
+
+/**
+ * Night Shift is a night palette at every hour and Settings follows the app's own light and dark
+ * themes, so the components are handed the app's colour tokens through the properties they already
+ * read (the same trick as profile/WeakSpotCard.tsx). Token to token, no literal colour.
+ *
+ * `--ns-signal` is deliberately absent: no button here is one the clock is waiting on.
+ */
+const nightShiftPalette = {
+  '--ns-text': 'var(--color-foreground)',
+  '--ns-text-2': 'var(--color-muted-foreground)',
+  '--ns-line': 'var(--color-border)',
+  '--ns-raised': 'var(--color-muted)',
+  '--ns-raised-2': 'var(--color-background)',
+} as CSSProperties
 
 /** The cast's rare one-liners at the table — on by default, easy to silence. */
 function TableTalkSection() {

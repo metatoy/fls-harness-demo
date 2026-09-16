@@ -7,6 +7,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
+import { mirrorRow } from '@/lib/handedness'
+import { useTableHandedness } from '@/components/table/useTableHandedness'
 import { useMoney } from '@/lib/useMoney'
 import { cn } from '@/lib/utils'
 
@@ -42,6 +44,7 @@ export function LeaveDialog({
   onConfirm: () => void
 }) {
   const money = useMoney()
+  const leftHanded = useTableHandedness()
   const converted = cashOut !== stack
   const pnl = cashOut - buyIn
   const up = pnl >= 0
@@ -83,19 +86,29 @@ export function LeaveDialog({
           </div>
         )}
 
+        {/* Cancel then confirm, mirrored whole when the table is drawn for a left thumb: the
+            confirming button is the one a thumb should not have to cross the phone for, and the
+            mirror moves the DOM so tab order still follows the eye. */}
         <div className="mt-2 flex gap-2">
-          <button
-            onClick={() => onOpenChange(false)}
-            className="flex-1 rounded-2xl bg-foreground/[0.06] py-3 font-medium transition hover:bg-foreground/[0.12]"
-          >
-            Keep playing
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 rounded-2xl bg-primary py-3 font-semibold text-primary-foreground transition hover:bg-primary/90 active:scale-[0.98]"
-          >
-            {freeroll ? 'Leave' : cash ? 'Stand up' : 'Cash out'}
-          </button>
+          {mirrorRow(
+            [
+              <button
+                key="cancel"
+                onClick={() => onOpenChange(false)}
+                className="flex-1 rounded-2xl bg-foreground/[0.06] py-3 font-medium transition hover:bg-foreground/[0.12]"
+              >
+                Keep playing
+              </button>,
+              <button
+                key="confirm"
+                onClick={onConfirm}
+                className="flex-1 rounded-2xl bg-primary py-3 font-semibold text-primary-foreground transition hover:bg-primary/90 active:scale-[0.98]"
+              >
+                {freeroll ? 'Leave' : cash ? 'Stand up' : 'Cash out'}
+              </button>,
+            ],
+            leftHanded,
+          )}
         </div>
       </DialogContent>
     </Dialog>

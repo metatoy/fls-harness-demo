@@ -155,6 +155,15 @@ export interface ProfileState {
   handCoaching: boolean
   /** Short vibration on the physical moments (see lib/haptics). Off by default. */
   haptics: boolean
+  /**
+   * Mirror the table's touch targets to a left thumb (see lib/handedness). Off by default,
+   * because the layout it flips away from is the one the other hand already reaches.
+   *
+   * It lives here, on the profile, rather than beside the device settings: it follows the player
+   * to their next device through sync, and signing out leaves it alone — this store is never
+   * cleared on sign-out (see store/sync.ts), which is exactly what an accessibility setting needs.
+   */
+  leftHanded: boolean
   /** The most recent Daily Deal played (only today's gates anything). */
   daily: DailyRecord | null
   /** Chip Shop purchases (item ids). Style, never edge — see docs/shop.md. */
@@ -227,6 +236,7 @@ export interface ProfileState {
   setTableTalk: (value: boolean) => void
   setHandCoaching: (value: boolean) => void
   setHaptics: (value: boolean) => void
+  setLeftHanded: (value: boolean) => void
   /** Buy a Chip Shop item: deducts the price, records ownership. No-op if owned or short. */
   buyItem: (id: string, price: number) => void
   setDeckFace: (id: string) => void
@@ -259,7 +269,7 @@ export interface ProfileState {
   reset: () => void
 }
 
-export const PERSIST_VERSION = 18
+export const PERSIST_VERSION = 19
 const PERSIST_KEY = 'pip.profile'
 
 /** A kind you have never answered a spot from. */
@@ -291,6 +301,7 @@ export const useProfile = create<ProfileState>()(
       tableTalk: true,
       handCoaching: true,
       haptics: false,
+      leftHanded: false,
       daily: null,
       owned: [],
       deckFace: 'classic',
@@ -389,6 +400,7 @@ export const useProfile = create<ProfileState>()(
       setTableTalk: (value) => set({ tableTalk: value }),
       setHandCoaching: (value) => set({ handCoaching: value }),
       setHaptics: (value) => set({ haptics: value }),
+      setLeftHanded: (value) => set({ leftHanded: value }),
       buyItem: (id, price) =>
         set((s) => {
           // Spending never moves peakRoll — rank is about winnings, not thrift.
@@ -474,6 +486,7 @@ export const useProfile = create<ProfileState>()(
           tableTalk: true,
           handCoaching: true,
           haptics: false,
+          leftHanded: false,
           daily: null,
           owned: [],
           deckFace: 'classic',
@@ -592,6 +605,10 @@ export function migrateProfile(persisted: unknown, fromVersion: number): Profile
   // this log here and the card waits for five runs rather than naming a weakness out of
   // arithmetic nobody performed.
   if (fromVersion < 18) s.sessions = []
+  // v18 -> v19: left-handed mode. Off for everyone, new and existing: the app has always drawn
+  // the row for a right thumb, so off is the layout every current player already has, and a
+  // handedness nobody stated is not something to guess at from how they play.
+  if (fromVersion < 19) s.leftHanded = false
   return s
 }
 

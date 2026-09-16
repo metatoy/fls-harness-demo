@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { legalActions, potSize, type HandState } from '@/lib/poker/engine'
 import { useGame } from '@/store/game'
+import { actionRowOrder } from '@/lib/handedness'
+import { useTableHandedness } from '@/components/table/useTableHandedness'
 import { sound } from '@/lib/sound'
 import { useMoney } from '@/lib/useMoney'
 import { cn } from '@/lib/utils'
@@ -13,6 +15,7 @@ const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n
 
 export function ActionBar({ hand }: { hand: HandState }) {
   const act = useGame((s) => s.act)
+  const leftHanded = useTableHandedness()
   const money = useMoney()
   const [sizerOpen, setSizerOpen] = useState(false)
   const [raiseTo, setRaiseTo] = useState(0)
@@ -46,6 +49,30 @@ export function ActionBar({ hand }: { hand: HandState }) {
     setSizerOpen(false)
   }
 
+  // Authored right-handed: Fold / Check-Call / Bet-Raise, left to right. `actionRowOrder` is what
+  // decides the slots, so the row is written once and the mirror is not a second copy of it.
+  const buttons: Record<string, React.ReactNode> = {
+    fold: (
+      <Pill onClick={() => act({ type: 'fold' })} tone="ghost">
+        Fold
+      </Pill>
+    ),
+    'check-call': legal.canCheck ? (
+      <Pill onClick={() => act({ type: 'check' })}>Check</Pill>
+    ) : (
+      <Pill onClick={() => act({ type: 'call' })}>Call {money(legal.callAmount)}</Pill>
+    ),
+    ...(legal.canBet || legal.canRaise
+      ? {
+          'bet-raise': (
+            <Pill onClick={openSizer} tone="primary">
+              {legal.canBet ? 'Bet' : 'Raise'}
+            </Pill>
+          ),
+        }
+      : {}),
+  }
+
   return (
     <>
       <motion.div
@@ -53,23 +80,15 @@ export function ActionBar({ hand }: { hand: HandState }) {
         animate={{ opacity: 1, y: 0 }}
         className="flex gap-2"
       >
-        <Pill onClick={() => act({ type: 'fold' })} tone="ghost">
-          Fold
-        </Pill>
-        {legal.canCheck ? (
-          <Pill onClick={() => act({ type: 'check' })}>Check</Pill>
-        ) : (
-          <Pill onClick={() => act({ type: 'call' })}>Call {money(legal.callAmount)}</Pill>
-        )}
-        {(legal.canBet || legal.canRaise) && (
-          <Pill onClick={openSizer} tone="primary">
-            {legal.canBet ? 'Bet' : 'Raise'}
-          </Pill>
-        )}
+        {actionRowOrder(Object.keys(buttons), leftHanded).map((key) => (
+          <Fragment key={key}>{buttons[key]}</Fragment>
+        ))}
       </motion.div>
 
       <Dialog open={sizerOpen} onOpenChange={setSizerOpen}>
-        <DialogContent className="sm:max-w-xs">
+        {/* The sizer opens against the thumb's own edge rather than the middle of the screen, so
+            the slider and its presets are reachable without crossing the phone. */}
+        <DialogContent className={cn('sm:max-w-xs', leftHanded && 'left-4 translate-x-0')}>
           <DialogHeader>
             <DialogTitle>{legal.canBet ? 'Bet' : 'Raise'}</DialogTitle>
           </DialogHeader>
