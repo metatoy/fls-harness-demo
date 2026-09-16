@@ -12,11 +12,13 @@ import Link from 'next/link'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Pause, Play, RotateCcw } from 'lucide-react'
 import { DealtCard, PlayingCard } from '@/components/PlayingCard'
+import { StreetJump } from '@/components/hand/StreetJump'
 import { HandTimeline } from '@/components/HandTimeline'
 import { CountUp } from '@/components/CountUp'
 import { Splash } from '@/components/Splash'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { decodeHand } from '@/lib/handLink'
+import { isEnabled } from '@/lib/flags'
 import { nicknameFor } from '@/config/handNames'
 import { useHydrated } from '@/lib/useHydrated'
 import { formatChips, useMoney } from '@/lib/useMoney'
@@ -43,6 +45,7 @@ function Replay({ record }: { record: HandRecord }) {
   const money = useMoney()
   const reduce = useReducedMotion() ?? false
   const total = record.events.length
+  const jumpOn = isEnabled('street-jump')
 
   // Reduced motion (or an empty hand) shows the whole thing at rest.
   const [step, setStep] = useState(reduce ? total : 0)
@@ -109,6 +112,14 @@ function Replay({ record }: { record: HandRecord }) {
         </p>
 
         <OutcomeHeadline outcome={outcome} finished={finished} />
+
+        {/* Street jump sits directly above the board it changes, with Back/Next below: on a hand
+            somebody else played, "show me the turn" is the move, and stepping is the fallback. */}
+        {jumpOn && total > 0 && (
+          <div className="mt-4">
+            <StreetJump record={record} step={step} onJump={seek} />
+          </div>
+        )}
 
         {/* the board — deals in street by street */}
         <div className="mt-5 flex min-h-[4.75rem] items-center justify-center gap-1.5">
