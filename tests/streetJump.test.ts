@@ -1,4 +1,5 @@
 import test from 'ava'
+import { flagEnabled, flags } from '@/lib/flags'
 import { cardFromString } from '@/lib/poker/cards'
 import { potAt, streetCursors } from '@/lib/replayStreets'
 import type { HandEvent, HandRecord } from '@/store/game'
@@ -41,6 +42,13 @@ const played = hand([
 /** The board on show at a given cursor, the way the replay page reads it. */
 const boardAt = (record: HandRecord, step: number) =>
   [...record.events.slice(0, step)].reverse().find((e) => e.kind === 'board')?.cards ?? []
+
+test('the bar ships behind a flag that is off in both environments', (t) => {
+  // The surface is new, so nobody sees it until a human turns it on — in either environment.
+  t.true('street-jump' in flags, 'the flag exists to be turned on')
+  t.false(flagEnabled(flags, 'street-jump', 'stage'))
+  t.false(flagEnabled(flags, 'street-jump', 'prod'))
+})
 
 // ── the cursors ────────────────────────────────────────────────────────────────────────────
 
