@@ -23,7 +23,7 @@ interface WireHand {
   /** Player names, in first-appearance order; `h` is the hero's index. */
   p: string[]
   h: number
-  /** Events: [playerIndex, actionCode, amount?] or ['*', boardLabel, cards]. */
+  /** Events: [playerIndex, actionCode, amount?] or ['*', boardLabel, cards, potEnteringStreet?]. */
   e: (readonly (string | number)[])[]
   /** Community + reveals ([playerIndex, cards, handName?]) + summary. */
   c: string
@@ -45,7 +45,12 @@ export function encodeHand(record: HandRecord): string {
 
   const events = record.events.map((ev) =>
     ev.kind === 'board'
-      ? (['*', ev.label, ev.cards.map(cardToString).join('')] as const)
+      ? ([
+          '*',
+          ev.label,
+          ev.cards.map(cardToString).join(''),
+          ...(ev.pot !== undefined ? [ev.pot] : []),
+        ] as const)
       : ([
           indexOf(ev.playerId, ev.playerName),
           ACTION_CODES[ev.type],
@@ -97,8 +102,12 @@ export function decodeHand(token: string): HandRecord | null {
   for (const raw of wire.e) {
     if (raw[0] === '*') {
       const cards = parseCards(raw[2])
+      const pot = raw[3]
       if (typeof raw[1] !== 'string' || !cards) return null
-      events.push({ kind: 'board', label: raw[1], cards })
+      // A link made before the pot was carried has three elements, not four: the
+      // replay drops the figure rather than refusing the hand.
+      if (pot !== undefined && typeof pot !== 'number') return null
+      events.push({ kind: 'board', label: raw[1], cards, ...(pot !== undefined ? { pot } : {}) })
     } else {
       const [pi, code, amount] = raw
       const type = typeof code === 'string' ? CODE_ACTIONS[code] : undefined

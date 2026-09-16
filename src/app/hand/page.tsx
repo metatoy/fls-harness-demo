@@ -17,6 +17,8 @@ import { CountUp } from '@/components/CountUp'
 import { Splash } from '@/components/Splash'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { decodeHand } from '@/lib/handLink'
+import { isEnabled } from '@/lib/flags'
+import { streetMarkers, type StreetMarker } from '@/lib/replayStreets'
 import { nicknameFor } from '@/config/handNames'
 import { useHydrated } from '@/lib/useHydrated'
 import { formatChips, useMoney } from '@/lib/useMoney'
@@ -95,6 +97,16 @@ function Replay({ record }: { record: HandRecord }) {
   const community = [...shown].reverse().find((e) => e.kind === 'board')?.cards ?? []
   const current = shown[shown.length - 1]
 
+  // Street jump: the streets this hand actually dealt, as places to land. When the replay is
+  // sitting on one of them the board is out but nobody has acted yet, so the pot entering the
+  // street and the action about to be played are both worth saying out loud.
+  const markers = useMemo(
+    () => (isEnabled('street-jump') ? streetMarkers(record.events) : []),
+    [record],
+  )
+  const atStreet = markers.length > 0 && current?.kind === 'board' ? current : undefined
+  const upNext = atStreet ? record.events[step] : undefined
+
   // The sharer's cards, kept on the felt so the receiver can follow the decisions.
   const heroReveal = record.reveals.find((r) => r.playerId === 'hero')
   const nickname = heroReveal ? nicknameFor(heroReveal.cards) : null
@@ -120,6 +132,13 @@ function Replay({ record }: { record: HandRecord }) {
             </span>
           )}
         </div>
+
+        {/* the pot as it stood entering this street — only where that is the truth */}
+        {atStreet?.pot !== undefined && (
+          <p className="mt-1 text-center text-2xs uppercase tracking-[0.2em] text-muted-foreground/70">
+            Pot <span className="tabular-nums text-foreground">{money(atStreet.pot)}</span>
+          </p>
+        )}
 
         {/* the sharer's hand */}
         {heroReveal && (
@@ -152,11 +171,20 @@ function Replay({ record }: { record: HandRecord }) {
           </AnimatePresence>
         </div>
 
+        {/* the street's first action: named, so landing on a street shows what is about to
+            happen without having spent it */}
+        {upNext && (
+          <p className="mt-1 text-center text-2xs uppercase tracking-[0.2em] text-muted-foreground/60">
+            Next · {narrate(upNext, formatChips)}
+          </p>
+        )}
+
         <Transport
           playing={playing}
           finished={finished}
           step={step}
           total={total}
+          markers={markers}
           onToggle={toggle}
           onSeek={seek}
         />
@@ -227,12 +255,13 @@ function OutcomeHeadline({ outcome, finished }: { outcome: Outcome | null; finis
   )
 }
 
-/** Play/pause + a seekable segmented track + step nudges. */
+/** Play/pause + street chips + a seekable segmented track + step nudges. */
 function Transport({
   playing,
   finished,
   step,
   total,
+  markers,
   onToggle,
   onSeek,
 }: {
@@ -240,12 +269,41 @@ function Transport({
   finished: boolean
   step: number
   total: number
+  markers: StreetMarker[]
   onToggle: () => void
   onSeek: (n: number) => void
 }) {
   if (total === 0) return null
   return (
     <div className="mt-6 flex flex-col items-center gap-4">
+      {/* Jump straight to the moment being discussed. The chips sit on the same strip as Back
+          and Next because they do the same job at a coarser grain. A street with no chip was
+          never dealt, so the track only ever offers somewhere this hand really went. */}
+      {markers.length > 0 && (
+        <div className="flex items-center gap-2">
+          {markers.map((m) => {
+            const landed = step === m.step
+            return (
+              <button
+                key={m.label}
+                type="button"
+                onClick={() => onSeek(m.step)}
+                aria-current={landed ? 'step' : undefined}
+                className={cn(
+                  'flex min-h-11 items-center rounded-full border px-4 text-2xs font-medium uppercase tracking-[0.18em] transition focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none',
+                  landed
+                    ? 'border-transparent bg-primary text-primary-foreground'
+                    : 'border-foreground/10 bg-foreground/[0.03] text-muted-foreground hover:bg-foreground/10',
+                )}
+              >
+                <span className="sr-only">Jump to the </span>
+                {m.label}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       <div className="flex w-full max-w-xs items-center gap-1">
         {Array.from({ length: total }).map((_, i) => (
           <button

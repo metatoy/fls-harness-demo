@@ -105,6 +105,15 @@ export interface HandBoardEvent {
   /** "Flop" | "Turn" | "River" | "Runout" (all-in deal-outs). */
   label: string
   cards: Card[]
+  /**
+   * The pot entering this street, taken from the live state as the cards land.
+   *
+   * Recorded rather than rebuilt for the same reason as `decision` above: the arithmetic (who
+   * posted which blind, what each raise-to left to add) can be redone from the event list, but
+   * only by guessing at facts the list does not carry, and it would go wrong silently. The
+   * replay's street jump reads this; links made before it existed simply have no pot to show.
+   */
+  pot?: number
 }
 
 export type HandEvent = HandActionEvent | HandBoardEvent
@@ -486,7 +495,7 @@ function recordStep(prev: HandState, action: Action, next: HandState) {
           : next.community.length === 4
             ? 'Turn'
             : 'River'
-    currentEvents.push({ kind: 'board', label, cards: next.community.slice() })
+    currentEvents.push({ kind: 'board', label, cards: next.community.slice(), pot: potSize(next) })
   }
 }
 
