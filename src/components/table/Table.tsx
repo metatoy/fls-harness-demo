@@ -12,6 +12,7 @@ import { DealtCard, PlayingCard, type CardSize } from '@/components/PlayingCard'
 import { CardBack } from '@/components/CardBack'
 import { CountUp } from '@/components/CountUp'
 import { ActionBar } from './ActionBar'
+import { PreActionBar } from './PreActionBar'
 import { HandHistoryDialog } from './HandHistoryDialog'
 import { HandsHelpDialog } from './HandsHelpDialog'
 import { LeaveDialog } from './LeaveDialog'
@@ -96,6 +97,7 @@ export function Table() {
   const hasHistory = useGame((s) => s.lastHand !== null)
   const reactionsOn = isEnabled('table-reactions')
   const readsOn = isEnabled('live-opponent-reads')
+  const preActionOn = isEnabled('pre-action')
   const { fired, fire } = useHeroReaction()
 
   const metaById = useMemo(() => new Map(seats.map((s) => [s.id, s])), [seats])
@@ -213,7 +215,10 @@ export function Table() {
         </button>
       </motion.div>
     ) : (
-      <ActionBar hand={hand} />
+      <>
+        {preActionOn && <PreActionBar hand={hand} />}
+        <ActionBar hand={hand} />
+      </>
     )
 
   // Table talk lives with the board — under the community cards, across from
