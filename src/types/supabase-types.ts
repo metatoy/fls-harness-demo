@@ -1,5 +1,13 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
+type DailyDrillAttempt = {
+  answer: string
+  correct_answer: string
+  local_date: string
+  submitted_at: string
+  user_id: string
+}
+
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -80,6 +88,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      // Hand-written like memberships above: regenerate once pushed.
+      daily_drill_recent: {
+        Args: { p_time_zone: string }
+        Returns: DailyDrillAttempt[]
+      }
+      daily_drill_submit: {
+        Args: { p_answer: string; p_correct_answer: string; p_time_zone: string }
+        Returns: DailyDrillAttempt
+      }
       delete_own_account: {
         Args: Record<PropertyKey, never>
         Returns: undefined

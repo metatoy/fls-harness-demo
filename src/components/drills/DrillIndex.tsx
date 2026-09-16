@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { MotionConfig, motion } from 'framer-motion'
 import { ChevronRight } from 'lucide-react'
 import { SectionScreen } from '@/components/menu/SectionScreen'
+import { DailyDrillCard } from '@/components/daily/DailyDrillCard'
+import { isEnabled } from '@/lib/flags'
 import { DRILL_KINDS, type DrillKind, canPlayDrill } from '@/config/drills'
 import { nextDrill, randomSeed } from '@/lib/drills'
 import { PlayingCard } from '@/components/PlayingCard'
@@ -47,6 +49,8 @@ export function DrillIndex() {
         title="Drills"
         subtitle="Short spots with a right answer. Your rating moves with every one, and there is no limit on how many you play."
       >
+        {/* One shared question a day, above the kinds you can play as many of as you like. */}
+        {isEnabled('daily-drill') && <DailyDrillCard />}
         <div className="grid gap-4 md:grid-cols-2">
           {kinds.map((kind, i) => (
             <DrillTile key={kind.id} kind={kind} delay={i * 0.05} />
