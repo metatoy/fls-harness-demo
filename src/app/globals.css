@@ -252,6 +252,23 @@
   outline-offset: 2px;
 }
 
+/* Street jump on a shared hand (src/components/hand/StreetJump.tsx, behind the `street-jump`
+   flag). Same two restatements the dock needs: the system-wide focus rule, which lives in
+   night-shift/styles.css and cannot be loaded here, and one the Button has no prop for — which
+   target you are standing on. The border is the quiet half of that; the button also carries the
+   word "(showing)" and the bar carries a badge, because a state said in colour alone is not said. */
+.ns-street-jump .ns-btn {
+  width: 100%;
+}
+.ns-street-jump .ns-btn:focus-visible {
+  outline: var(--ns-border-strong) solid var(--ns-signal);
+  outline-offset: 2px;
+}
+.ns-street-jump .ns-btn[aria-current="true"] {
+  border-color: var(--ns-text);
+  font-weight: 600;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
