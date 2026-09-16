@@ -3,5 +3,6 @@
   "table-reactions": { "stage": false, "prod": false },
   "hero-stack-depth": { "stage": false, "prod": false },
   "live-opponent-reads": { "stage": false, "prod": false },
-  "weak-spot": { "stage": false, "prod": false }
+  "weak-spot": { "stage": false, "prod": false },
+  "action-emphasis": { "stage": false, "prod": false }
 }

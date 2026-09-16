@@ -45,6 +45,24 @@ to avoid SSR flashes.
 - **Card backs:** user-customizable colour + pattern (muted, Notion-style palette). See
   `config/cardBacks.ts` and `components/CardBack.tsx`.
 
+### The action bar's green (`--action`, behind `action-emphasis`)
+
+Fold, call and raise are the only controls a player hits under a clock, so they are the loudest
+things on the felt and they are told apart by fill rather than by reading: **raise is a solid
+fill, call is the same green as an outline, fold is neutral** and stays the quietest of the
+three. The sizes go with it — 18px bold labels, 56px tall, equal thirds that may shrink.
+
+- The colour is `--action` / `--action-foreground` in `globals.css`. It is Night Shift's
+  `--ns-win`, used as written on dark and darkened toward the page's ink on light, where the
+  token as authored sits at about 1.9:1 on white. It is not `--ns-signal`: that means "the clock
+  is waiting on you", which on this bar is true of all three buttons at once.
+- The rules live in `globals.css` rather than on the element, because the design system's
+  `Button` injects its own unlayered `<style>` that beats any Tailwind utility on the same
+  element. `.pip-actions .ns-btn` outranks it on specificity, which is how the vendored
+  component gets restyled without being edited.
+- `tests/actionEmphasis.test.ts` holds all of it, including that no other in-hand control's
+  label is bigger or bolder.
+
 ## Typography
 
 - **Geist** (sans) + **Geist Mono**, wired as `--font-sans` / `--font-mono`.
