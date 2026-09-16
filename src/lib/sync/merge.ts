@@ -114,6 +114,10 @@ export function mergeProfiles(local: ProfileData, remote: ProfileData, side: Sid
     // would invent a sequence the stickiness rule then reads as history.
     sessions: winner.sessions,
 
+    // Recent Hands stays this device's own. Cross-device sync is a non-goal for it, and merging
+    // would pull in rows whose replay payloads were never written here.
+    recentHands: local.recentHands,
+
     // The Daily is once per UTC day and abandoning counts as played, so the
     // record that says "played today" has to win or syncing becomes a re-roll.
     daily: mergeDaily(local.daily, remote.daily),
@@ -359,6 +363,7 @@ function pickUnhandled(winner: ProfileData, loser: ProfileData): Partial<Profile
     'stats',
     'tendencies',
     'sessions',
+    'recentHands',
     'peakRoll',
     'awards',
     'owned',

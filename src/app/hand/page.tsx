@@ -17,6 +17,7 @@ import { CountUp } from '@/components/CountUp'
 import { Splash } from '@/components/Splash'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { decodeHand } from '@/lib/handLink'
+import { useProfile } from '@/store/profile'
 import { nicknameFor } from '@/config/handNames'
 import { useHydrated } from '@/lib/useHydrated'
 import { formatChips, useMoney } from '@/lib/useMoney'
@@ -28,14 +29,26 @@ import type { Card } from '@/lib/poker/cards'
 export default function HandPage() {
   const hydrated = useHydrated()
   // The fragment never reaches the server — decode is client-only by nature.
-  const record = useMemo(
-    () => (hydrated ? decodeHand(window.location.hash.slice(1)) : null),
-    [hydrated],
-  )
+  const record = useMemo(() => (hydrated ? resolveHand() : null), [hydrated])
 
   if (!hydrated) return <Splash />
   if (!record) return <InvalidLink />
   return <Replay record={record} />
+}
+
+/**
+ * The hand this page is showing: the fragment a shared link carries, or — for `/hand?h=<id>` — the
+ * replay this device already holds for one of the player's own recent hands (lib/recentHands).
+ * The second path reads nothing but this profile's own store and puts nothing in the URL, so
+ * opening a row on Recent Hands mints no share link; sharing stays a separate, explicit act.
+ */
+function resolveHand(): HandRecord | null {
+  const fragment = window.location.hash.slice(1)
+  if (fragment) return decodeHand(fragment)
+  const id = new URLSearchParams(window.location.search).get('h')
+  if (!id) return null
+  const own = useProfile.getState().recentHands.find((h) => h.id === id)
+  return own?.token ? decodeHand(own.token) : null
 }
 
 /** The cinematic replay: board, hero cards, narration, transport, outcome. */
