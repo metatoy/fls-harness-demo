@@ -39,6 +39,12 @@ export const MAX_OPPONENTS = 8
  */
 export const SAMPLE_TARGET = 20_000
 
+/** The atom of sampled work, whatever slice the caller asked for: small enough
+ *  that a step is a frame or two on a slow phone, fixed so the answer cannot
+ *  depend on how the work was chopped up. A spot link reads the same at both
+ *  ends only because this is a constant. */
+export const SAMPLE_CHUNK = 500
+
 /**
  * The largest exhaustive count worth running in front of someone.
  *
@@ -239,7 +245,8 @@ export interface OddsRunner {
    * null until the count is complete.
    */
   readonly quote: OddsQuote | null
-  /** Do up to `budget` showdowns. Returns how many it actually did. */
+  /** Do about `budget` showdowns (a sampled run rounds to whole `SAMPLE_CHUNK`s,
+   *  and always does one). Returns how many it actually did. */
   step(budget: number): number
 }
 
@@ -302,26 +309,32 @@ export function createOddsRunner(
         return ran
       }
 
-      // One rng across every slice. Slicing still changes which hands come
-      // out (estimateEquity shuffles its own deck in place across the
-      // iterations of a single call, and a fresh call starts that over), but
-      // each slice is an unbiased sample of the same spot, so the estimator
-      // this builds is the same estimator either way. tests/oddsQuote.test.ts
-      // pins that: two different slicings agree inside the band.
-      const result = estimateEquity({
-        hole: input.hole,
-        community: input.community,
-        opponents: input.opponents,
-        iterations: want,
-        rng,
-      })
-      // win and tie are counts divided by a known integer; recovering the
-      // counts keeps the running totals whole rather than drifting.
-      wins += Math.round(result.win * want)
-      ties += Math.round(result.tie * want)
-      potShare += result.equity * want
-      done += want
-      return want
+      // One rng across every slice, drawn on in fixed chunks. estimateEquity
+      // shuffles its deck in place across the iterations of one call and a fresh
+      // call starts that over, so the call boundaries are part of the arithmetic;
+      // pinning them to SAMPLE_CHUNK takes the device's timing back out of it,
+      // and with a seeded rng the answer becomes a function of the spot alone,
+      // which is what a shared spot link promises.
+      let ran = 0
+      const chunks = Math.max(1, Math.floor(want / SAMPLE_CHUNK))
+      for (let c = 0; c < chunks && ran < want; c++) {
+        const size = Math.min(SAMPLE_CHUNK, total - done - ran)
+        const result = estimateEquity({
+          hole: input.hole,
+          community: input.community,
+          opponents: input.opponents,
+          iterations: size,
+          rng,
+        })
+        // win and tie are counts divided by a known integer; recovering the
+        // counts keeps the running totals whole rather than drifting.
+        wins += Math.round(result.win * size)
+        ties += Math.round(result.tie * size)
+        potShare += result.equity * size
+        ran += size
+      }
+      done += ran
+      return ran
     },
   }
 }
