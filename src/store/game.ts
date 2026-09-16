@@ -26,6 +26,7 @@ import {
   type ReadSignal,
 } from '@/lib/liveRead'
 import { heroDecision, readHand, type HandRead, type HeroDecision } from '@/lib/coach'
+import { type ArmedPreAction, preActionFire, tokenHolds } from '@/lib/preAction'
 import { buildRecap, type Recap } from '@/lib/recap'
 import { deviceId } from '@/lib/sync/client'
 import { type Escrow, tableIsBacked } from '@/lib/sync/escrow'
@@ -125,6 +126,8 @@ const HUMAN_ID = 'hero'
 // followable), and briskly once the human has folded and is just spectating.
 const AI_DELAY_IN_HAND = 1050
 const AI_DELAY_FOLDED = 450
+/** How long an armed pre-action waits before submitting itself. Long enough to be seen. */
+const PRE_ACTION_DELAY = 250
 
 interface GameState {
   venue: Venue | null
@@ -173,11 +176,23 @@ interface GameState {
   /** Chips bought in this session — the sit-in plus any rebuys. Drives the cash
    * table's cash-out P/L (which must count rebuys, not just the first buy-in). */
   cashInvested: number
+  /**
+   * The hero's armed pre-action, or null. Single-slot and never persisted: an arm is about one
+   * betting situation, and it is dropped the moment that situation changes (see lib/preAction).
+   */
+  preAction: ArmedPreAction | null
+  /**
+   * An arm that reached the hero's turn and could not be submitted. The turn is handed back
+   * untouched with this showing, because the one thing a pre-action must never do is fold quietly.
+   */
+  preActionMissed: boolean
 
   sitDown: (venue: Venue, human: { name: string; avatar: AvatarSpec }) => void
   /** Rebuild an interrupted table from its snapshot (no buy-in taken). */
   resumeTable: (venue: Venue, snapshot: TableSnapshot) => void
   act: (action: Action) => void
+  /** Arm (or, tapped again with the same slot filled, disarm) the hero's pre-action. */
+  armPreAction: (armed: ArmedPreAction | null) => void
   nextHand: () => void
   /** Cash tables only: buy a fresh stack after busting and deal on. */
   rebuy: () => void
@@ -574,6 +589,9 @@ export const useGame = create<GameState>((set, get) => {
       talk: null,
       seatStats: { ...seatStatsLive },
       liveReads: {},
+      // Nothing about a pre-action crosses a hand boundary — not the arm, not the notice.
+      preAction: null,
+      preActionMissed: false,
       buttonSeatId: configs[buttonIndex].id,
       smallBlind: blinds.smallBlind,
       bigBlind: blinds.bigBlind,
@@ -585,10 +603,40 @@ export const useGame = create<GameState>((set, get) => {
     progress()
   }
 
+  /**
+   * Submit the hero's armed pre-action once the turn is theirs.
+   *
+   * Scheduled rather than instant so the action lands visibly on the hero's own turn instead of
+   * a hand that appears to skip them — a fraction of the second the player is given, and no part
+   * of it is taken from them if the arm cannot fire.
+   */
+  function firePreAction() {
+    const armed = get().preAction
+    if (!armed) return
+    turnTimer = setTimeout(() => {
+      const hand = get().hand
+      const action = hand ? preActionFire(armed, get().handIndex, hand, HUMAN_ID) : null
+      if (!action) {
+        // Never a silent fold: the arm is dropped, the turn stays the hero's with all of it
+        // left, and the bar says so.
+        set({ preAction: null, preActionMissed: true })
+        return
+      }
+      set({ preAction: null })
+      get().act(action)
+    }, PRE_ACTION_DELAY)
+  }
+
   /** Advance the turn loop: schedule AI, or hand control to the human. */
   function progress() {
     const { hand } = get()
     if (!hand) return
+
+    // An arm answers one betting situation. A bet, a raise, a new street or a new hand makes it
+    // a different question, and the arm is dropped silently — back to acting for yourself, which
+    // is where the player was before they tapped.
+    const armed = get().preAction
+    if (armed && !tokenHolds(armed, get().handIndex, hand)) set({ preAction: null })
 
     if (isHandComplete(hand)) {
       finishHand()
@@ -601,6 +649,7 @@ export const useGame = create<GameState>((set, get) => {
     if (toAct.id === HUMAN_ID) {
       set({ aiThinkingId: null, heroEquity: computeHeroEquity(hand) })
       sound.play('turn')
+      firePreAction()
       return
     }
 
@@ -1036,6 +1085,8 @@ export const useGame = create<GameState>((set, get) => {
     recap: null,
     talk: null,
     cashInvested: 0,
+    preAction: null,
+    preActionMissed: false,
 
     sitDown: (venue, human) => {
       clearTimers()
@@ -1214,10 +1265,18 @@ export const useGame = create<GameState>((set, get) => {
       }
       const next = applyAction(hand, action)
       recordStep(hand, action, next)
-      set({ hand: next, heroEquity: null, liveReads: liveReadsLive })
+      set({
+        hand: next,
+        heroEquity: null,
+        liveReads: liveReadsLive,
+        preAction: null,
+        preActionMissed: false,
+      })
       saveLiveHand()
       progress()
     },
+
+    armPreAction: (armed) => set({ preAction: armed, preActionMissed: false }),
 
     nextHand: dealNextHand,
 

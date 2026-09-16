@@ -247,7 +247,8 @@
    system-wide focus rule — that lives in night-shift/styles.css, which this app cannot load
    (it would repaint every page in the night palette). Restate only the focus ring, so the
    control still clears the visible-focus floor. */
-.ns-reaction-dock .ns-btn:focus-visible {
+.ns-reaction-dock .ns-btn:focus-visible,
+.ns-preaction .ns-btn:focus-visible {
   outline: var(--ns-border-strong) solid var(--ns-signal);
   outline-offset: 2px;
 }
