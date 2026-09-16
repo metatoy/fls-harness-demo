@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Onboarding } from '@/components/onboarding/Onboarding'
 import { TutorialOffer } from '@/components/onboarding/TutorialOffer'
 import { Home } from '@/components/menu/Home'
+import { SittingRecap } from '@/components/menu/SittingRecap'
 import { ImportHandler } from '@/components/settings/ImportHandler'
 import { Splash } from '@/components/Splash'
 import { useProfile } from '@/store/profile'
@@ -30,7 +31,11 @@ export default function Page() {
       ) : offering ? (
         <TutorialOffer onDeclined={() => setOffering(false)} />
       ) : (
-        <Home />
+        // A cash sitting that ended — usually a stand-up a second ago, sometimes one that ended
+        // without the player there — is reported before the lobby, then never again.
+        <SittingRecap>
+          <Home />
+        </SittingRecap>
       )}
     </>
   )
