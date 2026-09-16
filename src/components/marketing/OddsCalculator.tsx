@@ -14,6 +14,7 @@ import {
   cardToString,
   isRed,
 } from '@/lib/poker/cards'
+import { type Combo, SUPPORTED_FORMS, parseRange, survivingCombos } from '@/lib/poker/handRange'
 import {
   MAX_OPPONENTS,
   type OddsInput,
@@ -22,6 +23,8 @@ import {
   formatBand,
   formatQuoted,
 } from '@/lib/poker/oddsQuote'
+import { isEnabled } from '@/lib/flags'
+import { useHydrated } from '@/lib/useHydrated'
 import { cn } from '@/lib/utils'
 
 /**
@@ -56,6 +59,16 @@ const TIME_BUDGET_MS = 6_000
 /** Milliseconds between repaints while a run refines. */
 const PAINT_EVERY_MS = 250
 
+/** A named opponent, once the cards on the table have been taken out of it. */
+interface Named {
+  /** Why there is nothing to calculate, or null when there is. */
+  error: string | null
+  /** What was recognised, said back to the reader. */
+  label: string
+  /** The surviving combinations; null whenever `error` is set. */
+  combos: Combo[] | null
+}
+
 interface RunState {
   /** The spot this result belongs to, by identity. See `current` below. */
   input: OddsInput
@@ -70,6 +83,12 @@ export function OddsCalculator() {
   const [opponents, setOpponents] = useState(1)
   const [rank, setRank] = useState<Rank | null>(null)
   const [run, setRun] = useState<RunState | null>(null)
+  const [oppText, setOppText] = useState('')
+
+  // The flag is read after hydration: this page is prerendered, and a stage
+  // override lives in localStorage, so reading it during the first render
+  // would make the server's markup and the client's disagree.
+  const namingOn = useHydrated() && isEnabled('named-opponent-range')
 
   const chosen = useMemo(() => [...hole, ...board], [hole, board])
   const used = useMemo(() => new Set(chosen.map(cardToString)), [chosen])
@@ -79,9 +98,29 @@ export function OddsCalculator() {
   const boardReady = board.length === 0 || board.length >= 3
   const ready = hole.length === 2 && boardReady
 
+  // What the opponent was said to hold, if anything. Notation that will not
+  // parse, and a range every combination of which is blocked, both stop the run
+  // — neither falls back to a random deal, which would answer a question nobody
+  // asked.
+  const named = useMemo<Named | null>(() => {
+    if (!namingOn || oppText.trim() === '') return null
+    const parsed = parseRange(oppText)
+    if (!parsed.ok) return { error: parsed.message, label: '', combos: null }
+    const { label } = parsed.spec
+    const combos = survivingCombos(parsed.spec.combos, chosen)
+    const error =
+      combos.length === 0
+        ? `Your cards and the board block every combination of ${label}, so there is nothing left for them to hold.`
+        : null
+    return { error, label, combos: error ? null : combos }
+  }, [namingOn, oppText, chosen])
+
   const input = useMemo<OddsInput | null>(
-    () => (ready ? { hole, community: board, opponents } : null),
-    [ready, hole, board, opponents],
+    () =>
+      ready && !named?.error
+        ? { hole, community: board, opponents, opponentCombos: named?.combos ?? undefined }
+        : null,
+    [ready, hole, board, opponents, named],
   )
 
   // Results are matched to the spot they were computed for by object identity
@@ -198,8 +237,14 @@ export function OddsCalculator() {
         </div>
       </div>
 
+      {namingOn && (
+        <div className="mt-6">
+          <OpponentField value={oppText} named={named} onChange={setOppText} />
+        </div>
+      )}
+
       <div className="mt-6 border-t border-foreground/10 pt-5">
-        <Readout ready={ready} hole={hole} board={board} run={current} />
+        <Readout ready={ready} hole={hole} board={board} run={current} named={named} />
       </div>
 
       {chosen.length > 0 && (
@@ -221,6 +266,56 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
     <p className="text-xs font-medium tracking-[0.16em] text-muted-foreground uppercase">
       {children}
     </p>
+  )
+}
+
+/**
+ * Say what the first opponent has, if you know it: one hand, one pair, one
+ * shape, or one of the three words for a family of them. Empty is the ordinary
+ * case and leaves the page exactly as it was. Nothing here is hidden from
+ * anybody — a public page, no hand in progress, the reader's own read and the
+ * arithmetic done out loud. Study, not a private edge at a live table.
+ */
+function OpponentField(props: {
+  value: string
+  named: Named | null
+  onChange: (next: string) => void
+}) {
+  const { value, named, onChange } = props
+  const error = named?.error ?? null
+  const combos = named?.combos?.length ?? 0
+  return (
+    <div>
+      <label htmlFor="opponent-range" className="block">
+        <FieldLabel>What they have (optional)</FieldLabel>
+      </label>
+      <input
+        id="opponent-range"
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="As Kd, JJ, AKs, any pair…"
+        autoComplete="off"
+        spellCheck={false}
+        aria-invalid={error ? true : undefined}
+        aria-describedby="opponent-range-note"
+        className={cn(
+          'mt-2 min-h-11 w-full rounded-lg border bg-transparent px-3 py-2 text-base text-foreground transition',
+          'placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground/60',
+          error ? 'border-destructive' : 'border-foreground/15 hover:border-foreground/30',
+        )}
+      />
+      <p
+        id="opponent-range-note"
+        role={error ? 'alert' : undefined}
+        className={cn('mt-2 text-sm', error ? 'text-destructive' : 'text-muted-foreground')}
+      >
+        {error ??
+          (combos > 0
+            ? `${named?.label}: ${combos} combination${combos === 1 ? '' : 's'}, each as likely as the rest.`
+            : `Leave it empty for a random hand. Or: ${SUPPORTED_FORMS.join('; ')}.`)}
+      </p>
+    </div>
   )
 }
 
@@ -373,18 +468,24 @@ function Readout({
   hole,
   board,
   run,
+  named,
 }: {
   ready: boolean
   hole: Card[]
   board: Card[]
   run: RunState | null
+  named: Named | null
 }) {
-  if (!ready) {
+  // A named opponent that will not parse blocks the odds rather than being
+  // ignored; the field carries the message, so this only says the number went.
+  if (named?.error || !ready) {
     return (
       <p className="text-md text-muted-foreground">
-        {hole.length < 2
-          ? 'Pick your two cards and the number appears here.'
-          : `A flop is three cards. Add ${3 - board.length} more, or take ${board.length === 1 ? 'it' : 'them'} back off to work it out preflop.`}
+        {named?.error
+          ? 'Fix what they have, or clear it, and the number comes back.'
+          : hole.length < 2
+            ? 'Pick your two cards and the number appears here.'
+            : `A flop is three cards. Add ${3 - board.length} more, or take ${board.length === 1 ? 'it' : 'them'} back off to work it out preflop.`}
       </p>
     )
   }
@@ -407,6 +508,7 @@ function Readout({
       </p>
       <p className="mt-1 text-md text-muted-foreground tabular-nums">
         Wins {formatQuoted(quote.win, band)}, ties {formatQuoted(quote.tie, band)}
+        {named?.combos ? ` against ${named.label}` : ''}
       </p>
       <p className="mt-1 text-sm text-muted-foreground tabular-nums">
         {quote.exact ? (
