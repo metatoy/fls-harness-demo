@@ -107,6 +107,7 @@ export function mergeProfiles(local: ProfileData, remote: ProfileData, side: Sid
     tableTalk: winner.tableTalk,
     handCoaching: winner.handCoaching,
     haptics: winner.haptics,
+    leftHanded: winner.leftHanded,
     cameFromFreeroll: winner.cameFromFreeroll,
 
     // The session log behind the weak spot follows the chosen side rather than merging. The rows
@@ -374,6 +375,7 @@ function pickUnhandled(winner: ProfileData, loser: ProfileData): Partial<Profile
     'tableTalk',
     'handCoaching',
     'haptics',
+    'leftHanded',
     'cameFromFreeroll',
     'daily',
     'challengeWins',
