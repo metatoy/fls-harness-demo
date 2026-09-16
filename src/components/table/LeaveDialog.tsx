@@ -7,8 +7,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
+import { NextVenueGap } from '@/components/NextVenueGap'
+import type { Venue } from '@/config/venues'
 import { useMoney } from '@/lib/useMoney'
 import { cn } from '@/lib/utils'
+import { useProfile } from '@/store/profile'
 
 /**
  * "Are you sure?" on leaving a table. A tournament shows session P/L and warns
@@ -28,6 +31,7 @@ export function LeaveDialog({
   buyIn,
   stack,
   cashOut,
+  venue = null,
   freeroll = false,
   cash = false,
   onConfirm,
@@ -37,11 +41,17 @@ export function LeaveDialog({
   buyIn: number
   stack: number
   cashOut: number
+  /** The table being left — the venue the gap strip measures its buy-in multiple against. */
+  venue?: Venue | null
   freeroll?: boolean
   cash?: boolean
   onConfirm: () => void
 }) {
   const money = useMoney()
+  // The Roll this run is about to leave the player with: the buy-in went out at sit-down, so the
+  // post-run Roll is what is held now plus what the stack cashes for. Read on every render of an
+  // open dialog, so the strip is against the Roll of the run actually being ended.
+  const roll = useProfile((s) => s.roll)
   const converted = cashOut !== stack
   const pnl = cashOut - buyIn
   const up = pnl >= 0
@@ -82,6 +92,8 @@ export function LeaveDialog({
             </div>
           </div>
         )}
+
+        <NextVenueGap roll={roll + cashOut} current={venue} />
 
         <div className="mt-2 flex gap-2">
           <button
