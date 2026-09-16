@@ -477,6 +477,7 @@ export function Table() {
         buyIn={venue.cash ? cashInvested : venue.buyIn}
         stack={hero?.stack ?? 0}
         cashOut={cashOutValue(venue, hero?.stack ?? 0)}
+        venue={venue}
         freeroll={venue.freeroll === true}
         cash={venue.cash === true}
         onConfirm={cashOutAndLeave}
