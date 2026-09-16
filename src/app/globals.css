@@ -111,6 +111,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* The action bar's emphasis colour — the raise's fill and the call's outline.
+     The token layer's only green is --ns-win, and it is authored for Night Shift's dark room:
+     on this app's light theme #5FD08A sits at about 1.9:1 on white, under the 3:1 a boundary
+     or a large label needs. So light darkens the SAME token toward the page's own ink rather
+     than introducing a second green — the day palette does exactly this to the signal. */
+  --action: color-mix(in oklab, var(--ns-win) 55%, var(--foreground));
+  --action-foreground: var(--background);
 }
 
 .dark {
@@ -145,6 +153,10 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* Dark is the room Night Shift authored the green for, so it is used as written. */
+  --action: var(--ns-win);
+  --action-foreground: var(--ns-win-ink);
 }
 
 /* --- venue ambience — "barely alive" ---------------------------------------
@@ -250,6 +262,79 @@
 .ns-reaction-dock .ns-btn:focus-visible {
   outline: var(--ns-border-strong) solid var(--ns-signal);
   outline-offset: 2px;
+}
+
+/* The in-hand action bar (src/components/table/ActionBar.tsx, behind the `action-emphasis`
+   flag). Fold, call and raise are the three controls a player hits under a clock, so they are
+   the loudest things on the felt and they are told apart by fill rather than by reading:
+   raise is solid, call is outlined, fold is quiet. Fold is the least loud on purpose — a
+   product that shouts "fold" is steering the player (design-system/pack.json, Button).
+
+   These rules are deliberately outside @layer. The design system's Button injects its own
+   <style> when it renders, which is unlayered and therefore beats any Tailwind utility on the
+   same element whatever the utility says; `.pip-actions .ns-btn` outranks `.ns-btn` on
+   specificity, which is how the component gets restyled without editing the vendored source.
+
+   Colour is never the whole message here: each button carries its own word (and the call
+   carries its price), so the bar still reads with no colour at all. */
+.pip-actions {
+  display: flex;
+  gap: var(--ns-s-2);
+}
+.pip-actions .ns-btn {
+  /* Equal thirds, per the wireframe. min-width:0 is what stops a long label ("Call 12,000")
+     from pushing the row wider than the felt and scrolling the whole table sideways. */
+  flex: 1 1 0;
+  min-width: 0;
+  /* 56px: the tap floor plus one step, so it tracks the token layer rather than a number
+     somebody picked. A label that wraps or a bigger text size grows it from there. */
+  min-height: calc(var(--ns-tap) + var(--ns-s-3));
+  padding: var(--ns-s-2);
+  border-radius: var(--ns-r-lg);
+  /* 18px bold, in rem so the text size setting still reaches it (docs/design.md). The family
+     is inherited: the Button's `font:` shorthand would otherwise pull in Night Shift's face,
+     which this app does not load. */
+  font-family: inherit;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.15;
+  /* The amount is never dropped to save a line: the label wraps instead. */
+  white-space: normal;
+  overflow: hidden;
+}
+.pip-actions .ns-btn:focus-visible {
+  outline: var(--ns-border-strong) solid var(--ns-signal);
+  outline-offset: 2px;
+}
+/* Raise — the one solid fill on the bar. It wears --action, never --ns-signal: the signal
+   means "the clock is waiting on you" and nothing else, and here the whole bar means that. */
+.pip-actions [data-action="raise"] {
+  background: var(--action);
+  border-color: var(--action);
+  color: var(--action-foreground);
+}
+.pip-actions [data-action="raise"]:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--action) 88%, var(--foreground));
+}
+/* Call — the same green as an outline on the neutral ground, so the two live actions are one
+   glance apart. The label keeps the page's ink; only the boundary is green. */
+.pip-actions [data-action="call"] {
+  background: transparent;
+  border-width: var(--ns-border-strong);
+  border-color: var(--action);
+  color: var(--foreground);
+}
+.pip-actions [data-action="call"]:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--action) 12%, transparent);
+}
+/* Fold — neutral, and the only one of the three with no green on it at all. */
+.pip-actions [data-action="fold"] {
+  background: color-mix(in oklab, var(--foreground) 6%, transparent);
+  border-color: transparent;
+  color: var(--muted-foreground);
+}
+.pip-actions [data-action="fold"]:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--foreground) 12%, transparent);
 }
 
 @layer base {
