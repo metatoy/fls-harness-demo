@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { PlayerAvatar } from '@/components/PlayerAvatar'
 import { PageShell } from '@/components/PageShell'
@@ -99,6 +100,17 @@ export function StatsPage() {
 
       {/* One thing to practise, before any of the numbers it was read off. */}
       {isEnabled('weak-spot') && <WeakSpotCard sessions={sessions} />}
+
+      {/* The way in to Recent Hands — the hands the numbers above were made of. */}
+      {isEnabled('recent-hands') && (
+        <Link
+          href="/hands"
+          className="mb-4 flex min-h-11 items-center justify-between rounded-2xl border border-foreground/10 bg-foreground/[0.02] px-5 py-3 text-sm transition-colors hover:bg-foreground/[0.06] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        >
+          <span className="font-medium">Recent hands</span>
+          <span className="text-xs text-muted-foreground">Your last 20, newest first</span>
+        </Link>
+      )}
 
       {/* the ladder — reads straight on from the Peak Roll above it */}
       <motion.section

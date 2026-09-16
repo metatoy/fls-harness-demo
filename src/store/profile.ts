@@ -9,6 +9,7 @@ import { persist } from 'zustand/middleware'
 import type { AvatarSpec } from '@/lib/avatar'
 import { emptySeatStats, type SeatStats } from '@/lib/reads'
 import { SESSION_LOG_CAP } from '@/lib/weakSpot'
+import { addRecentHand, type RecentHand } from '@/lib/recentHands'
 import { STARTING_ROLL } from '@/config/venues'
 import { DEFAULT_CARD_BACK, nearestCardBack } from '@/config/cardBacks'
 import { STARTING_RATING, nextRating } from '@/lib/drills/rating'
@@ -141,6 +142,12 @@ export interface ProfileState {
    * baseline so the save does not grow with play.
    */
   sessions: SeatStats[]
+  /**
+   * The last twenty completed hands, newest first, each with the replay payload it was recorded
+   * with (lib/recentHands). Persisted, so the list survives a restart; cleared by `reset()`, so it
+   * leaves with the player rather than waiting for the next one.
+   */
+  recentHands: RecentHand[]
   /** Chosen face-down card design (a curated id — see config/cardBacks). */
   cardBack: string
   /** Earned award chips: id → epoch ms earned (see lib/awards). */
@@ -240,6 +247,8 @@ export interface ProfileState {
   mergeTendencies: (delta: Partial<SeatStats>) => void
   /** File one finished run's hero tendencies as a session (see lib/weakSpot). */
   recordSession: (stats: SeatStats) => void
+  /** File one completed hand onto the Recent Hands list (deduped, newest first, capped). */
+  recordRecentHand: (entry: RecentHand) => void
   /** Sample the current Roll onto the history graph. */
   recordRollPoint: () => void
   recordVenueEntry: (venueId: string) => void
@@ -259,7 +268,7 @@ export interface ProfileState {
   reset: () => void
 }
 
-export const PERSIST_VERSION = 18
+export const PERSIST_VERSION = 19
 const PERSIST_KEY = 'pip.profile'
 
 /** A kind you have never answered a spot from. */
@@ -284,6 +293,7 @@ export const useProfile = create<ProfileState>()(
       venueRecords: {},
       tendencies: emptySeatStats(),
       sessions: [],
+      recentHands: [],
       cardBack: DEFAULT_CARD_BACK.id,
       awards: {},
       cameFromFreeroll: false,
@@ -405,6 +415,8 @@ export const useProfile = create<ProfileState>()(
       mergeTendencies: (delta) => set((s) => ({ tendencies: addTendencies(s.tendencies, delta) })),
       recordSession: (stats) =>
         set((s) => ({ sessions: [...s.sessions, stats].slice(-SESSION_LOG_CAP) })),
+      recordRecentHand: (entry) =>
+        set((s) => ({ recentHands: addRecentHand(s.recentHands, entry) })),
       recordRollPoint: () =>
         set((s) => ({
           rollHistory: [...s.rollHistory, { t: Date.now(), roll: s.roll }].slice(-ROLL_HISTORY_CAP),
@@ -467,6 +479,7 @@ export const useProfile = create<ProfileState>()(
           venueRecords: {},
           tendencies: emptySeatStats(),
           sessions: [],
+          recentHands: [],
           cardBack: DEFAULT_CARD_BACK.id,
           awards: {},
           cameFromFreeroll: false,
@@ -592,6 +605,10 @@ export function migrateProfile(persisted: unknown, fromVersion: number): Profile
   // this log here and the card waits for five runs rather than naming a weakness out of
   // arithmetic nobody performed.
   if (fromVersion < 18) s.sessions = []
+  // v18 -> v19: the Recent Hands list. Empty for everyone: a completed hand is only replayable
+  // from the payload recorded with it, and no earlier build kept one past the hand after it. So
+  // the list starts here rather than being back-filled with rows that would open nothing.
+  if (fromVersion < 19) s.recentHands = []
   return s
 }
 

@@ -27,6 +27,8 @@ import {
 } from '@/lib/liveRead'
 import { heroDecision, readHand, type HandRead, type HeroDecision } from '@/lib/coach'
 import { buildRecap, type Recap } from '@/lib/recap'
+import { encodeHand } from '@/lib/handLink'
+import { handIdFor } from '@/lib/recentHands'
 import { deviceId } from '@/lib/sync/client'
 import { type Escrow, tableIsBacked } from '@/lib/sync/escrow'
 import {
@@ -650,6 +652,21 @@ export const useGame = create<GameState>((set, get) => {
     const pot = potSize(hand)
 
     const profile = useProfile.getState()
+    // Recent Hands: filed here, at completion, with no user action (lib/recentHands). The replay
+    // payload is kept beside the row rather than turned into a link — the list is the player's own
+    // shelf, and sharing stays the explicit button on the hand dialog.
+    const completedAt = Date.now()
+    profile.recordRecentHand({
+      id: handIdFor(record.handNo, completedAt),
+      handNo: record.handNo,
+      table: `${venue.name} · ${record.smallBlind}/${record.bigBlind}`,
+      smallBlind: record.smallBlind,
+      bigBlind: record.bigBlind,
+      completedAt,
+      summary: record.summary,
+      won: heroWon,
+      token: encodeReplay(record),
+    })
     profile.mergeStats({
       handsPlayed: 1,
       handsWon: heroWon ? 1 : 0,
@@ -1384,4 +1401,17 @@ function describeResult(hand: HandState): string {
     return `${names} wins ${formatChips(win.amount)} with ${handName}`
   }
   return `${names} wins ${formatChips(win.amount)}`
+}
+
+/**
+ * The replay payload filed with a Recent Hands entry, or null when the hand will not encode. Null
+ * is the honest answer: the row then says the replay is unavailable instead of opening a route
+ * with nothing behind it.
+ */
+function encodeReplay(record: HandRecord): string | null {
+  try {
+    return encodeHand(record)
+  } catch {
+    return null
+  }
 }
