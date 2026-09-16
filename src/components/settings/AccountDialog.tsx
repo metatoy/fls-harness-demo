@@ -38,6 +38,9 @@ const secondaryButtonBase =
 // vertically, which is what `flex-1` would do to a child of the column.
 const secondaryButton = `flex-1 ${secondaryButtonBase}`
 const wideSecondaryButton = `w-full ${secondaryButtonBase}`
+// A split footer sizes its buttons to their own label rather than to half the
+// row, so it needs the horizontal padding `flex-1` was standing in for.
+const edgeButton = `px-5 ${secondaryButtonBase}`
 // A quiet link is still a tap target: 11px text in a 15px-tall box was the
 // worst thing in here on a phone.
 const textLink =
@@ -404,7 +407,12 @@ function ChangePassword({ onCancel, onSaved }: { onCancel: () => void; onSaved: 
         className={field}
       />
 
-      <div className="flex gap-2">
+      {/* A split footer, not two equal slabs. Leaving the form and committing it
+          are opposite answers, so they sit at opposite ends of the row and the
+          confirm is pinned to the right edge, where a form's confirm is looked
+          for. The DOM order is unchanged — Cancel, then Save it — so tab order
+          still runs with the reading order. */}
+      <div className="flex items-center justify-between gap-2">
         <button
           onClick={() => {
             sound.play('tap')
@@ -412,14 +420,14 @@ function ChangePassword({ onCancel, onSaved }: { onCancel: () => void; onSaved: 
             onCancel()
           }}
           disabled={busy}
-          className={secondaryButton}
+          className={edgeButton}
         >
           Cancel
         </button>
         <button
           onClick={submit}
           disabled={busy || next.length < 8 || again.length < 8}
-          className={secondaryButton}
+          className={edgeButton}
         >
           Save it
         </button>
