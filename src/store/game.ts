@@ -26,6 +26,7 @@ import {
   type ReadSignal,
 } from '@/lib/liveRead'
 import { heroDecision, readHand, type HandRead, type HeroDecision } from '@/lib/coach'
+import { handVerdict, type HandVerdict } from '@/lib/handResult'
 import { buildRecap, type Recap } from '@/lib/recap'
 import { deviceId } from '@/lib/sync/client'
 import { type Escrow, tableIsBacked } from '@/lib/sync/escrow'
@@ -151,6 +152,13 @@ interface GameState {
    * banner and replaced at the end of the next hand.
    */
   lastRead: HandRead | null
+  /**
+   * The plain-language verdict on the hand this player has just finished (lib/handResult), or
+   * null while a hand they are still in is running. Set the instant the hero folds — the fold
+   * is theirs, so the outcome is known long before the hand resolves — recomputed when the hand
+   * resolves, and cleared by the deal, so exactly one verdict is ever true at a time.
+   */
+  verdict: HandVerdict | null
   /** Award chips earned on the just-finished hand (for the quiet earn line). */
   newAwards: AwardDef[]
   /** Bounty chips collected on the just-finished hand (bounty tables). */
@@ -572,6 +580,9 @@ export const useGame = create<GameState>((set, get) => {
       newAwards: [],
       lastBounty: 0,
       talk: null,
+      // The deal clears the previous hand's verdict before a card is on the table, so the lane
+      // never holds two, and never holds a stale one over a live hand.
+      verdict: null,
       seatStats: { ...seatStatsLive },
       liveReads: {},
       buttonSeatId: configs[buttonIndex].id,
@@ -644,6 +655,11 @@ export const useGame = create<GameState>((set, get) => {
     set({
       lastHand: record,
       lastRead: useProfile.getState().handCoaching ? readHand(record) : null,
+      verdict: handVerdict({
+        folded: hand.players.find((p) => p.id === HUMAN_ID)?.status === 'folded',
+        result,
+        playerId: HUMAN_ID,
+      }),
       seatStats: { ...seatStatsLive },
     })
     const heroWon = !!result && (result.payouts[HUMAN_ID] ?? 0) > 0
@@ -1029,6 +1045,7 @@ export const useGame = create<GameState>((set, get) => {
     handIndex: 0,
     lastHand: null,
     lastRead: null,
+    verdict: null,
     newAwards: [],
     lastBounty: 0,
     seatStats: {},
@@ -1120,6 +1137,7 @@ export const useGame = create<GameState>((set, get) => {
         handIndex: 0,
         lastHand: null,
         lastRead: null,
+        verdict: null,
         newAwards: [],
         lastBounty: 0,
         seatStats: {},
@@ -1167,6 +1185,7 @@ export const useGame = create<GameState>((set, get) => {
         handIndex: snapshot.handIndex,
         lastHand: null,
         lastRead: null,
+        verdict: null,
         newAwards: [],
         lastBounty: 0,
         recap: null,
@@ -1214,7 +1233,16 @@ export const useGame = create<GameState>((set, get) => {
       }
       const next = applyAction(hand, action)
       recordStep(hand, action, next)
-      set({ hand: next, heroEquity: null, liveReads: liveReadsLive })
+      // The verdict on a fold is true the moment the fold is taken, and the player is owed it
+      // then rather than at the end of a hand they are no longer in. A fold made for them on a
+      // timeout arrives here too, so it reads the same.
+      const folded = action.type === 'fold'
+      set({
+        hand: next,
+        heroEquity: null,
+        liveReads: liveReadsLive,
+        ...(folded ? { verdict: handVerdict({ folded, result: null, playerId: HUMAN_ID }) } : {}),
+      })
       saveLiveHand()
       progress()
     },
@@ -1262,6 +1290,7 @@ export const useGame = create<GameState>((set, get) => {
         handIndex: 0,
         lastHand: null,
         lastRead: null,
+        verdict: null,
         newAwards: [],
         lastBounty: 0,
         seatStats: {},
