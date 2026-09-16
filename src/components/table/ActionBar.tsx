@@ -1,9 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { motion } from 'framer-motion'
+// The design system itself, not a copy of it (see table/Reactions.tsx): each .jsx source carries
+// its own CSS, which is the only way to use Night Shift here without loading night-shift/styles.css.
+import { Button } from '../../../design-system/night-shift/components/core/Button.jsx'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { legalActions, potSize, type HandState } from '@/lib/poker/engine'
+import {
+  ACTION_EMPHASIS_FLAG,
+  ACTION_ORDER,
+  ACTION_VARIANT,
+  type ActionKind,
+} from '@/lib/actionEmphasis'
+import { isEnabled } from '@/lib/flags'
 import { useGame } from '@/store/game'
 import { sound } from '@/lib/sound'
 import { useMoney } from '@/lib/useMoney'
@@ -20,6 +30,7 @@ export function ActionBar({ hand }: { hand: HandState }) {
   const legal = legalActions(hand)
   const hero = hand.players[hand.toActIndex]
   const isHeroTurn = hero?.id === 'hero' && !!legal
+  const emphasised = isEnabled(ACTION_EMPHASIS_FLAG)
 
   // Match the real button row's height exactly (py-4 + text-base = 56px) so the
   // bar appearing/clearing on the hero's turn never resizes the layout — that
@@ -46,25 +57,74 @@ export function ActionBar({ hand }: { hand: HandState }) {
     setSizerOpen(false)
   }
 
+  const raiseLabel = legal.canBet ? 'Bet' : 'Raise'
+  const canRaise = legal.canBet || legal.canRaise
+
+  // The emphasised bar: the design system's Button, told apart by fill. The raise's label stays
+  // a word rather than an amount — it opens the sizer instead of committing chips, and a price
+  // written on a control that does not charge it is the thing the Button's own rule is against.
+  const emphasisedButtons: Record<ActionKind, React.ReactNode> = {
+    fold: (
+      <Button
+        variant={ACTION_VARIANT.fold}
+        type="button"
+        data-action="fold"
+        onClick={() => act({ type: 'fold' })}
+      >
+        Fold
+      </Button>
+    ),
+    call: legal.canCheck ? (
+      <Button
+        variant={ACTION_VARIANT.call}
+        type="button"
+        data-action="call"
+        onClick={() => act({ type: 'check' })}
+      >
+        Check
+      </Button>
+    ) : (
+      <Button
+        variant={ACTION_VARIANT.call}
+        type="button"
+        data-action="call"
+        onClick={() => act({ type: 'call' })}
+      >
+        Call {money(legal.callAmount)}
+      </Button>
+    ),
+    raise: canRaise ? (
+      <Button variant={ACTION_VARIANT.raise} type="button" data-action="raise" onClick={openSizer}>
+        {raiseLabel}
+      </Button>
+    ) : null,
+  }
+
   return (
     <>
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex gap-2"
+        className={emphasised ? 'pip-actions' : 'flex gap-2'}
       >
-        <Pill onClick={() => act({ type: 'fold' })} tone="ghost">
-          Fold
-        </Pill>
-        {legal.canCheck ? (
-          <Pill onClick={() => act({ type: 'check' })}>Check</Pill>
+        {emphasised ? (
+          ACTION_ORDER.map((kind) => <Fragment key={kind}>{emphasisedButtons[kind]}</Fragment>)
         ) : (
-          <Pill onClick={() => act({ type: 'call' })}>Call {money(legal.callAmount)}</Pill>
-        )}
-        {(legal.canBet || legal.canRaise) && (
-          <Pill onClick={openSizer} tone="primary">
-            {legal.canBet ? 'Bet' : 'Raise'}
-          </Pill>
+          <>
+            <Pill onClick={() => act({ type: 'fold' })} tone="ghost">
+              Fold
+            </Pill>
+            {legal.canCheck ? (
+              <Pill onClick={() => act({ type: 'check' })}>Check</Pill>
+            ) : (
+              <Pill onClick={() => act({ type: 'call' })}>Call {money(legal.callAmount)}</Pill>
+            )}
+            {canRaise && (
+              <Pill onClick={openSizer} tone="primary">
+                {raiseLabel}
+              </Pill>
+            )}
+          </>
         )}
       </motion.div>
 
