@@ -16,6 +16,7 @@ import { HandHistoryDialog } from './HandHistoryDialog'
 import { HandsHelpDialog } from './HandsHelpDialog'
 import { LeaveDialog } from './LeaveDialog'
 import { PlayerDialog } from './PlayerDialog'
+import { HandResultBanner } from './HandResultBanner'
 import { ReactionDock, ReactionSlot, useHeroReaction } from './Reactions'
 import { RunRecap } from './RunRecap'
 import { isEnabled } from '@/lib/flags'
@@ -73,6 +74,7 @@ export function Table() {
     newAwards,
     lastBounty,
     lastRead,
+    verdict,
     seatStats,
     liveReads,
     recap,
@@ -96,6 +98,7 @@ export function Table() {
   const hasHistory = useGame((s) => s.lastHand !== null)
   const reactionsOn = isEnabled('table-reactions')
   const readsOn = isEnabled('live-opponent-reads')
+  const verdictOn = isEnabled('hand-result-banner')
   const { fired, fire } = useHeroReaction()
 
   const metaById = useMemo(() => new Map(seats.map((s) => [s.id, s])), [seats])
@@ -198,6 +201,11 @@ export function Table() {
       })}
     </div>
   )
+
+  /* The verdict's own lane, directly above the board at every width. Reserved even when empty, so
+     the board never moves when a hand ends — and the store clears it on the deal, so the lane is
+     empty again before the next first card. */
+  const verdictLane = verdictOn ? <HandResultBanner verdict={verdict} /> : null
 
   const actionArea =
     status === 'handover' ? (
@@ -334,6 +342,7 @@ export function Table() {
               <div className="flex items-center gap-1 px-2 text-muted-foreground">
                 {tableControls}
               </div>
+              {verdictLane}
               {communityCards}
               <div className="flex items-end justify-between gap-3 px-2">
                 <div className="min-w-0 flex-1">{talkLine}</div>
@@ -416,6 +425,7 @@ export function Table() {
             })}
 
             <div className="absolute left-1/2 top-[62%] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-4">
+              {verdictLane}
               {communityCards}
               <div className="flex w-full items-end justify-between gap-6">
                 <div className="min-w-0 flex-1">{talkLine}</div>
