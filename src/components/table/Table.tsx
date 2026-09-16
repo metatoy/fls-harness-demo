@@ -12,6 +12,7 @@ import { DealtCard, PlayingCard, type CardSize } from '@/components/PlayingCard'
 import { CardBack } from '@/components/CardBack'
 import { CountUp } from '@/components/CountUp'
 import { ActionBar } from './ActionBar'
+import { BackgroundTurnAlert } from './BackgroundTurnAlert'
 import { HandHistoryDialog } from './HandHistoryDialog'
 import { HandsHelpDialog } from './HandsHelpDialog'
 import { LeaveDialog } from './LeaveDialog'
@@ -96,6 +97,7 @@ export function Table() {
   const hasHistory = useGame((s) => s.lastHand !== null)
   const reactionsOn = isEnabled('table-reactions')
   const readsOn = isEnabled('live-opponent-reads')
+  const turnAlertOn = isEnabled('background-turn-alert')
   const { fired, fire } = useHeroReaction()
 
   const metaById = useMemo(() => new Map(seats.map((s) => [s.id, s])), [seats])
@@ -279,6 +281,11 @@ export function Table() {
 
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden" style={finishStyle}>
+      {/* Tabbed away with the action on you: flash the title and ping until you are back or the
+          turn is over. Renders nothing — the surface is the tab's own title bar. */}
+      {turnAlertOn && (
+        <BackgroundTurnAlert heroToAct={status === 'playing' && activeId === 'hero'} />
+      )}
       {/* top bar — the shared AppBar; back confirms via the leave dialog */}
       <AppBar
         className="z-20"
