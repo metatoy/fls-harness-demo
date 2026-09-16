@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { RotateCcw } from 'lucide-react'
+import { Link2, RotateCcw } from 'lucide-react'
+import { Badge } from '../../../design-system/night-shift/components/core/Badge.jsx'
+import { Button } from '../../../design-system/night-shift/components/core/Button.jsx'
 import { PlayingCard } from '@/components/PlayingCard'
 import {
   type Card,
@@ -13,7 +15,12 @@ import {
   cardName,
   cardToString,
   isRed,
+  mulberry32,
 } from '@/lib/poker/cards'
+import { isEnabled } from '@/lib/flags'
+import { type Spot, spotFromHash, spotSeed, spotUrl } from '@/lib/spotLink'
+import { useCopied } from '@/lib/useCopied'
+import { useHydrated } from '@/lib/useHydrated'
 import {
   MAX_OPPONENTS,
   type OddsInput,
@@ -64,10 +71,42 @@ interface RunState {
   settled: boolean
 }
 
+/**
+ * The fragment is read on the client or not at all — this page is a static
+ * export and a `#` never reaches a server anyway. The calculator remounts once
+ * the hash is readable (the key), so a shared spot arrives as its initial state
+ * rather than being pushed in by a setState in an effect, which is the React 19
+ * rule this repo holds to.
+ */
 export function OddsCalculator() {
-  const [hole, setHole] = useState<Card[]>([])
-  const [board, setBoard] = useState<Card[]>([])
-  const [opponents, setOpponents] = useState(1)
+  const hydrated = useHydrated()
+  const sharing = hydrated && isEnabled('spot-links')
+  const hash = sharing ? window.location.hash : ''
+  const incoming = spotFromHash(hash)
+  return (
+    <Calculator
+      key={hydrated ? 'client' : 'ssr'}
+      sharing={sharing}
+      incoming={incoming}
+      unreadable={hash.length > 1 && incoming === null}
+    />
+  )
+}
+
+function Calculator({
+  sharing,
+  incoming,
+  unreadable,
+}: {
+  sharing: boolean
+  /** The spot that arrived in the link, if one did. */
+  incoming: Spot | null
+  /** A link arrived unreadable: empty calculator, and say so. */
+  unreadable: boolean
+}) {
+  const [hole, setHole] = useState<Card[]>(incoming ? [...incoming.hole] : [])
+  const [board, setBoard] = useState<Card[]>(incoming ? [...incoming.board] : [])
+  const [opponents, setOpponents] = useState(incoming?.opponents ?? 1)
   const [rank, setRank] = useState<Rank | null>(null)
   const [run, setRun] = useState<RunState | null>(null)
 
@@ -93,7 +132,14 @@ export function OddsCalculator() {
   useEffect(() => {
     if (!input) return
 
-    const runner = createOddsRunner(input)
+    // Seeded from the spot, so a sampled answer belongs to the spot rather than
+    // to this visit: two people opening the same link see the same number.
+    const seed = spotSeed({
+      hole: input.hole,
+      board: input.community ?? [],
+      opponents: input.opponents,
+    })
+    const runner = createOddsRunner(input, { rng: mulberry32(seed) })
     const startedAt = performance.now()
     let cancelled = false
     let timer = 0
@@ -153,6 +199,15 @@ export function OddsCalculator() {
       data-mirror="skip"
       className="mt-8 rounded-2xl border border-foreground/10 bg-foreground/[0.02] p-5 sm:p-6"
     >
+      {unreadable && (
+        <p className="mb-5 flex flex-wrap items-center gap-2 text-md text-muted-foreground">
+          {/* The word as well as the colour: a notice said in colour alone is no notice. */}
+          <Badge tone="warn">Link</Badge>
+          We couldn’t read this link — it was probably cut short on its way here. Pick the cards
+          again below.
+        </p>
+      )}
+
       <Slots
         label="Your cards"
         cards={hole}
@@ -202,6 +257,8 @@ export function OddsCalculator() {
         <Readout ready={ready} hole={hole} board={board} run={current} />
       </div>
 
+      {sharing && ready && <ShareLink spot={{ hole, board, opponents }} />}
+
       {chosen.length > 0 && (
         <button
           type="button"
@@ -221,6 +278,47 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
     <p className="text-xs font-medium tracking-[0.16em] text-muted-foreground uppercase">
       {children}
     </p>
+  )
+}
+
+/**
+ * The link to this exact spot, in the page under the answer rather than behind a
+ * dialog: seeing the URL is what makes it obvious that the spot IS the link and
+ * that nothing was saved anywhere. Read-only, and it selects itself on focus so
+ * it can be copied by hand where there is no clipboard API.
+ */
+function ShareLink({ spot }: { spot: Spot }) {
+  const [copied, copy] = useCopied()
+  const url = spotUrl(spot, window.location.origin)
+  if (!url) return null
+
+  return (
+    <div className="ns-spot-share mt-5 border-t border-foreground/10 pt-5">
+      <label htmlFor="spot-link" className="block">
+        <FieldLabel>Link to this spot</FieldLabel>
+      </label>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <input
+          id="spot-link"
+          readOnly
+          value={url}
+          onFocus={(e) => e.currentTarget.select()}
+          className="min-h-11 min-w-0 flex-1 rounded-xl border border-foreground/15 bg-foreground/[0.03] px-3 text-md"
+        />
+        <Button
+          type="button"
+          onClick={() => void navigator.clipboard?.writeText(url).then(() => copy())}
+        >
+          <Link2 className="mr-1.5 inline size-3.5" aria-hidden />
+          {copied ? 'Link copied' : 'Copy link'}
+        </Button>
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground" aria-live="polite">
+        {copied
+          ? 'Copied. Anyone you send it to sees this spot and these odds.'
+          : 'The whole spot is in the link. Nothing is saved, and it never expires.'}
+      </p>
+    </div>
   )
 }
 
